@@ -20,6 +20,10 @@ export function Navbar() {
     router.push('/dashboard');
   };
 
+  const handleActivity = () => {
+    router.push('/dashboard/activity');
+  };
+
   if (isLoading) {
     return (
       <nav className="bg-[#cfa349] shadow-lg">
@@ -42,7 +46,10 @@ export function Navbar() {
           <div className="flex items-center space-x-4">
             <h1 onClick={handleMenu} className="text-white text-xl font-bold cursor-pointer hover:text-gray-300 transition-colors">TERRATECH</h1>
             {user?.role === "admin" && (
-              <div onClick={handleDashboard} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Dashboard</div>
+              <>
+                <div onClick={handleDashboard} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Dashboard</div>
+                <div onClick={handleActivity} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Activity</div>
+              </>
             )}
           </div>
           
