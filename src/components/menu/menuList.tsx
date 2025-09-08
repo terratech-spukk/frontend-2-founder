@@ -156,11 +156,19 @@ const FoodMenuPage = () => {
           <h1 className="text-3xl font-bold text-gray-900">Our Menu</h1>
           <p className="mt-2 text-gray-600">เมนูอาหารของเรา</p>
           
-          {/* Search and Popular Filter Controls */}
-          <div className="mt-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              {/* Search Input */}
-              <div className="flex-1 max-w-md">
+
+              
+            </div>
+          </div>
+
+      {/* Main Content with Sidebar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Sidebar - Price Range Filter */}
+          <div className="lg:w-80 flex-shrink-0">
+          <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-8">
+            {/* Search Input */}
+            <div className="text-lg font-semibold text-gray-900 mb-4">
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,10 +186,10 @@ const FoodMenuPage = () => {
               </div>
 
               {/* Popular Filter Toggle */}
-              <div className="flex items-center">
+              <div className="flex items-center font-semibold sticky">
                 <button
                   onClick={() => setShowPopularOnly(!showPopularOnly)}
-                  className={`flex items-center px-4 py-3 rounded-lg border transition-all duration-200 ${
+                  className={`flex items-center lg:px-8 lg:py-3 rounded-lg border transition-all duration-200 ${
                     showPopularOnly
                       ? 'bg-orange-500 text-white border-orange-500 shadow-md'
                       : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300 hover:bg-orange-50'
@@ -202,20 +210,9 @@ const FoodMenuPage = () => {
                   </span>
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content with Sidebar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Left Sidebar - Price Range Filter */}
-          <div className="lg:w-80 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Price Range / ช่วงราคา</h3>
-              
+            
               {/* Price Display */}
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Price Range / ช่วงราคา</h3>
               <div className="flex justify-between text-sm text-gray-600 mb-4">
                 <span>฿{minPrice}</span>
                 <span>฿{maxPrice}</span>
@@ -434,7 +431,7 @@ const FoodMenuPage = () => {
             </div>
 
             {filteredMenus.length === 0 && !loading && (
-              <div className="text-center py-12">
+              <div className="text-center py-12 bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg">
                 <div className="text-gray-400 text-6xl mb-4">🍽️</div>
                 <h3 className="text-xl font-semibold text-gray-600 mb-2">
                   {searchQuery || showPopularOnly ? 'No Menu Items Found' : 'No Menu Items Available'}
