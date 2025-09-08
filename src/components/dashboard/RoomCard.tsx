@@ -10,9 +10,11 @@ interface RoomCardProps {
   onReserve?: (roomId: number, guestData: { full_name: string; phone_number: string }) => void;
   onCancel?: (roomId: number) => void;
   onShowQR?: (roomId: number) => void;
+  onCheckin?: (roomId: number) => void;
+  onCheckout?: (roomId: number) => void;
 }
 
-export function RoomCard({ room, onReserve, onCancel, onShowQR }: RoomCardProps) {
+export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onCheckout }: RoomCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showQRPopup, setShowQRPopup] = useState(false);
 
@@ -50,6 +52,10 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR }: RoomCardProps)
         return "bg-green-100 border-green-300 text-green-800";
       case "reserve":
         return "bg-blue-100 border-blue-300 text-blue-800";
+      case "checkin":
+        return "bg-orange-100 border-orange-300 text-orange-800";
+      case "checkout":
+        return "bg-purple-100 border-purple-300 text-purple-800";
       case "unavailable":
         return "bg-gray-100 border-gray-300 text-gray-800";
       default:
@@ -63,6 +69,10 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR }: RoomCardProps)
         return "Available";
       case "reserve":
         return "Reserved";
+      case "checkin":
+        return "Checked In";
+      case "checkout":
+        return "Checked Out";
       case "unavailable":
         return "Unavailable";
       default:
@@ -140,12 +150,41 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR }: RoomCardProps)
                 Show QR Code
               </button>
             )}
+            {onCheckin && (
+              <button
+                onClick={() => onCheckin(room.room_number)}
+                className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors"
+              >
+                Check In
+              </button>
+            )}
             {onCancel && (
               <button
                 onClick={() => onCancel(room.room_number)}
                 className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors"
               >
                 Cancel
+              </button>
+            )}
+          </div>
+        )}
+        
+        {room.status === "checkin" && (
+          <div className="flex gap-2 w-full">
+            {onShowQR && (
+              <button
+                onClick={handleShowQRClick}
+                className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors"
+              >
+                Show QR Code
+              </button>
+            )}
+            {onCheckout && (
+              <button
+                onClick={() => onCheckout(room.room_number)}
+                className="flex-1 bg-purple-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-600 transition-colors"
+              >
+                Check Out
               </button>
             )}
           </div>

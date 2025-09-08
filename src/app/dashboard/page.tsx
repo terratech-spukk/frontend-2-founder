@@ -243,6 +243,148 @@ export default function DashboardPage() {
         }
     };
 
+    const handleCheckin = async (roomNumber: number) => {
+        try {
+            // Find the room
+            const room = rooms.find(r => r.room_number === roomNumber);
+            if (!room) {
+                console.error('Room not found');
+                return;
+            }
+            
+            // Show loading state
+            addToast({
+                title: "Checking In",
+                description: `Checking in room ${roomNumber}...`,
+                color: "primary",
+                timeout: 3000,
+            });
+            
+            // Make API call to checkin room
+            const token = localStorage.getItem("token");
+            const response = await fetch("/api/protected/hotel/checkin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ hotel_room_id: room.id })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            
+            // Update UI optimistically
+            setRooms(prevRooms => 
+                prevRooms.map(room => 
+                    room.room_number === roomNumber 
+                        ? { ...room, status: "checkin" as const }
+                        : room
+                )
+            );
+            
+            // Show success toast
+            addToast({
+                title: "Check-in Successful",
+                description: `Room ${roomNumber} has been checked in`,
+                color: "success",
+                timeout: 4000,
+            });
+            
+            console.log(`Room ${roomNumber} checked in successfully`);
+        } catch (error: any) {
+            console.error('Error checking in room:', error);
+            const errorMessage = error?.message || 'Failed to check in the room. Please try again.';
+            
+            // Show error toast
+            addToast({
+                title: "Check-in Failed",
+                description: errorMessage,
+                color: "danger",
+                timeout: 4000,
+            });
+            
+            // Revert UI change on error
+            fetchRooms();
+        }
+    };
+
+    const handleCheckout = async (roomNumber: number) => {
+        try {
+            // Find the room
+            const room = rooms.find(r => r.room_number === roomNumber);
+            if (!room) {
+                console.error('Room not found');
+                return;
+            }
+            
+            // Show loading state
+            addToast({
+                title: "Checking Out",
+                description: `Checking out room ${roomNumber}...`,
+                color: "primary",
+                timeout: 3000,
+            });
+            
+            // Make API call to checkout room
+            const token = localStorage.getItem("token");
+            const response = await fetch("/api/protected/hotel/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ hotel_room_id: room.id })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+            
+            // Update UI optimistically
+            setRooms(prevRooms => 
+                prevRooms.map(room => 
+                    room.room_number === roomNumber 
+                        ? { 
+                            ...room, 
+                            status: "available" as const, 
+                            current_guest: null,
+                            qrcode_base64: null,
+                            qr_code_data: null
+                          }
+                        : room
+                )
+            );
+            
+            // Show success toast
+            addToast({
+                title: "Check-out Successful",
+                description: `Room ${roomNumber} has been checked out`,
+                color: "success",
+                timeout: 4000,
+            });
+            
+            console.log(`Room ${roomNumber} checked out successfully`);
+        } catch (error: any) {
+            console.error('Error checking out room:', error);
+            const errorMessage = error?.message || 'Failed to check out the room. Please try again.';
+            
+            // Show error toast
+            addToast({
+                title: "Check-out Failed",
+                description: errorMessage,
+                color: "danger",
+                timeout: 4000,
+            });
+            
+            // Revert UI change on error
+            fetchRooms();
+        }
+    };
+
     const handleCancel = async (roomNumber: number) => {
         try {
             // Find the room to get the current guest
@@ -379,6 +521,8 @@ export default function DashboardPage() {
                                 onReserve={handleReserve}
                                 onCancel={handleCancel}
                                 onShowQR={handleShowQR}
+                                onCheckin={handleCheckin}
+                                onCheckout={handleCheckout}
                             />
                         ))}
                     </div>

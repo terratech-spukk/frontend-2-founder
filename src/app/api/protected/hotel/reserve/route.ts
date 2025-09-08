@@ -99,6 +99,32 @@ export async function POST(req: NextRequest) {
         
         const data = await reserveRoom.json();
         
+        // Create booking data and post to hotel-bookings endpoint first
+        const bookingData = {
+            room_number: room.room_number,
+            reserve_by: generatedUsername,
+            reserve_name: full_name,
+            reserve_at: new Date().toISOString(),
+            checkin_at: null,
+            unreserve_cause: null,
+            unreserve_at: null,
+            price: room.price
+        };
+        
+        const createBooking = await fetch(`${API_BASE}/hotel-bookings`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bookingData),
+        });
+        
+        let bookingId = null;
+        if (createBooking.ok) {
+            const bookingResponse = await createBooking.json();
+            bookingId = bookingResponse.id || bookingResponse.data?.id;
+        } else {
+            console.warn("Failed to create booking record");
+        }
+        
         // Generate QR code data
         const baseUrl = req.nextUrl.origin;
         const qrCodeData = generateQRCodeData(generatedUsername, generatedPassword, baseUrl, full_name, phone_number);
@@ -107,13 +133,14 @@ export async function POST(req: NextRequest) {
         const qrCodeImage = await generateQRCodeImage(qrCodeData.autoLoginUrl);
         qrCodeData.qrCodeImage = qrCodeImage;
         
-        // Update room with QR code data
+        // Update room with QR code data and booking ID
         const updateRoomWithQR = await fetch(`${API_BASE}/hotel-rooms/${hotel_room_id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 qrcode_base64: qrCodeImage,
-                qr_code_data: JSON.stringify(qrCodeData)
+                qr_code_data: JSON.stringify(qrCodeData),
+                booking_id: bookingId
             }),
         });
         
