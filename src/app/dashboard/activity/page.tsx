@@ -6,7 +6,7 @@ import { useEffect, useState, useMemo } from "react";
 import { BookingHistory } from "@/types/room";
 import { api } from "@/lib/axios";
 import { addToast } from "@heroui/react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, Legend } from 'recharts';
 
 export default function ActivityPage() {
     const { user, isLoading } = useSession();

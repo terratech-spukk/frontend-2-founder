@@ -24,6 +24,10 @@ export function Navbar() {
     router.push('/dashboard/activity');
   };
 
+  const handleFoodEdit = () => {
+    router.push('/admin/food-edit');
+  };
+
   if (isLoading) {
     return (
       <nav className="bg-[#cfa349] shadow-lg">
@@ -49,6 +53,7 @@ export function Navbar() {
               <>
                 <div onClick={handleDashboard} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Dashboard</div>
                 <div onClick={handleActivity} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Activity</div>
+                <div onClick={handleFoodEdit} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Food Edit</div>
               </>
             )}
           </div>
