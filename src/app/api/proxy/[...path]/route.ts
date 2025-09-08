@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"; // your actual backend
+import { API_BASE } from "../../base";
 
 // Shared handler for all HTTP methods
 async function handleRequest(
