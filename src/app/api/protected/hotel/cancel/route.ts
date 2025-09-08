@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
-                expire: true
+                expire: true,
             }),
         });
 
@@ -51,7 +51,8 @@ export async function POST(req: NextRequest) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 status: "available",
-                current_guest: null
+                current_guest: null,
+                qrcode_base64: null,
             }),
         });
 

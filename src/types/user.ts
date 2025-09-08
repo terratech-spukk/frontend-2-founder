@@ -11,6 +11,8 @@ export interface Account {
     role: "admin" | "kitchen" | "user";
     expire: boolean;
     room_id: number | null;
+    full_name?: string | null;
+    phone_number?: string | null;
 }
 
 export interface LoginRequest {
@@ -23,4 +25,6 @@ export interface RegisterRequest {
     password: string;
     role: "admin" | "kitchen" | "user";
     room_id?: number | null;
+    full_name?: string;
+    phone_number?: string;
 }

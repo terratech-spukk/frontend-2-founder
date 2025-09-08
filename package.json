@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@heroui/react": "^2.8.3",
+    "@types/qrcode": "^1.5.5",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
@@ -20,6 +21,7 @@
     "jose": "^6.1.0",
     "lucide-react": "^0.542.0",
     "next": "15.5.2",
+    "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",

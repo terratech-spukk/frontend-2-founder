@@ -4,6 +4,7 @@ import { useSession } from "@/components/SessionProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { RoomCard } from "@/components/dashboard/RoomCard";
+import { QRCodeModal } from "@/components/dashboard/QRCodeModal";
 import { Room } from "@/types/room";
 import { api } from "@/lib/axios";
 import { addToast } from "@heroui/react";
@@ -14,6 +15,14 @@ export default function DashboardPage() {
     const [rooms, setRooms] = useState<Room[]>([]);
     const [roomsLoading, setRoomsLoading] = useState(false);
     const [roomsError, setRoomsError] = useState<string | null>(null);
+    const [qrModalOpen, setQrModalOpen] = useState(false);
+    const [qrCredentials, setQrCredentials] = useState<{
+        username: string;
+        password: string;
+        autoLoginUrl: string;
+        qrCodeData?: any;
+    } | null>(null);
+    const [qrRoomNumber, setQrRoomNumber] = useState<number | null>(null);
 
     // Fetch room data from API
     const fetchRooms = async () => {
@@ -27,6 +36,7 @@ export default function DashboardPage() {
                     'Content-Type': 'application/json'
                 }
             });
+            console.log('Fetched rooms data:', response.data); // Debug log
             setRooms(response.data);
             
             // Show success toast for room loading
@@ -51,7 +61,7 @@ export default function DashboardPage() {
         fetchRooms();
     }, []);
 
-    const handleReserve = async (roomNumber: number, username: string) => {
+    const handleReserve = async (roomNumber: number, guestData: { full_name: string; phone_number: string }) => {
         try {
             // Find the room by room_number to get the id
             const room = rooms.find(r => r.room_number === roomNumber);
@@ -60,14 +70,13 @@ export default function DashboardPage() {
                 return;
             }
             
-            // Update UI optimistically
-            setRooms(prevRooms => 
-                prevRooms.map(room => 
-                    room.room_number === roomNumber 
-                        ? { ...room, status: "reserve" as const, current_guest: username }
-                        : room
-                )
-            );
+            // Show loading state
+            addToast({
+                title: "Reserving Room",
+                description: `Reserving room ${roomNumber} for ${guestData.full_name}...`,
+                color: "primary",
+                timeout: 3000,
+            });
             
             // Make API call to reserve room with authorization header
             const token = localStorage.getItem("token");
@@ -77,7 +86,11 @@ export default function DashboardPage() {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ hotel_room_id: room.id, username: username })
+                body: JSON.stringify({ 
+                    hotel_room_id: room.id, 
+                    full_name: guestData.full_name,
+                    phone_number: guestData.phone_number
+                })
             });
             
             if (!response.ok) {
@@ -85,15 +98,37 @@ export default function DashboardPage() {
                 throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
             }
             
+            const responseData = await response.json();
+            
             // Show success toast
             addToast({
                 title: "Reservation Successful",
-                description: `Room ${roomNumber} has been reserved for ${username}`,
+                description: `Room ${roomNumber} has been reserved with auto-generated credentials`,
                 color: "success",
                 timeout: 4000,
             });
             
-            console.log(`Room ${roomNumber} reserved for ${username} successfully`);
+            // Update room with generated username and QR code data
+            setRooms(prevRooms => 
+                prevRooms.map(room => 
+                    room.room_number === roomNumber 
+                        ? { 
+                            ...room, 
+                            status: "reserve" as const, 
+                            current_guest: responseData.credentials.username,
+                            qrcode_base64: responseData.credentials.qrCodeData.qrCodeImage,
+                            qr_code_data: JSON.stringify(responseData.credentials.qrCodeData)
+                          }
+                        : room
+                )
+            );
+            
+            // Show QR code modal with credentials
+            setQrCredentials(responseData.credentials);
+            setQrRoomNumber(roomNumber);
+            setQrModalOpen(true);
+            
+            console.log(`Room ${roomNumber} reserved successfully with credentials:`, responseData.credentials);
         } catch (error: any) {
             console.error('Error reserving room:', error);
             const errorMessage = error?.message || 'Failed to reserve the room. Please try again.';
@@ -108,6 +143,103 @@ export default function DashboardPage() {
             
             // Revert UI change on error
             fetchRooms();
+        }
+    };
+
+    const handleShowQR = async (roomNumber: number) => {
+        try {
+            // Find the room to get QR code data
+            const room = rooms.find(r => r.room_number === roomNumber);
+            console.log('Room data:', room); // Debug log
+            
+            if (!room?.current_guest) {
+                console.error('No current guest found for room');
+                return;
+            }
+            
+            // Check if room has QR code data
+            console.log('QR code fields:', {
+                qrcode_base64: room.qrcode_base64,
+                qr_code_data: room.qr_code_data
+            }); // Debug log
+            
+            if (room.qrcode_base64 && room.qr_code_data) {
+                const qrCodeData = JSON.parse(room.qr_code_data);
+                
+                setQrCredentials({
+                    username: qrCodeData.username,
+                    password: qrCodeData.password,
+                    autoLoginUrl: qrCodeData.autoLoginUrl,
+                    qrCodeData: {
+                        ...qrCodeData,
+                        qrCodeImage: room.qrcode_base64
+                    }
+                });
+                setQrRoomNumber(roomNumber);
+                setQrModalOpen(true);
+            } else {
+                // Try to fetch fresh room data from API
+                console.log('QR code data not found in local state, fetching from API...');
+                const token = localStorage.getItem("token");
+                const response = await fetch(`/api/protected/hotel/rooms/${room.id}`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const freshRoomData = await response.json();
+                    console.log('Fresh room data:', freshRoomData);
+                    
+                    if (freshRoomData.qrcode_base64 && freshRoomData.qr_code_data) {
+                        const qrCodeData = JSON.parse(freshRoomData.qr_code_data);
+                        
+                        setQrCredentials({
+                            username: qrCodeData.username,
+                            password: qrCodeData.password,
+                            autoLoginUrl: qrCodeData.autoLoginUrl,
+                            qrCodeData: {
+                                ...qrCodeData,
+                                qrCodeImage: freshRoomData.qrcode_base64
+                            }
+                        });
+                        setQrRoomNumber(roomNumber);
+                        setQrModalOpen(true);
+                        return;
+                    }
+                }
+                
+                // If no QR code data found, try to generate it from the current guest username
+                console.log('No QR code data found, attempting to generate from username...');
+                const username = room.current_guest;
+                
+                // Extract password from username if it follows the pattern room_XXX_timestamp
+                // For now, we'll use a default password or try to extract it
+                const baseUrl = window.location.origin;
+                const autoLoginUrl = `${baseUrl}/login/qrcode?loginname=${encodeURIComponent(username)}&password=123`;
+                
+                setQrCredentials({
+                    username: username,
+                    password: "123", // Default password
+                    autoLoginUrl: autoLoginUrl,
+                    qrCodeData: {
+                        username: username,
+                        password: "123",
+                        autoLoginUrl: autoLoginUrl,
+                        qrCodeImage: "" // Will be generated by QRCodeModal
+                    }
+                });
+                setQrRoomNumber(roomNumber);
+                setQrModalOpen(true);
+            }
+        } catch (error: any) {
+            console.error('Error fetching QR code:', error);
+            addToast({
+                title: "Error",
+                description: "Failed to load QR code data",
+                color: "danger",
+                timeout: 4000,
+            });
         }
     };
 
@@ -246,6 +378,7 @@ export default function DashboardPage() {
                                 room={room}
                                 onReserve={handleReserve}
                                 onCancel={handleCancel}
+                                onShowQR={handleShowQR}
                             />
                         ))}
                     </div>
@@ -257,6 +390,20 @@ export default function DashboardPage() {
                     </div>
                 )}
             </div>
+
+            {/* QR Code Modal */}
+            {qrCredentials && qrRoomNumber && (
+                <QRCodeModal
+                    isOpen={qrModalOpen}
+                    onClose={() => {
+                        setQrModalOpen(false);
+                        setQrCredentials(null);
+                        setQrRoomNumber(null);
+                    }}
+                    credentials={qrCredentials}
+                    roomNumber={qrRoomNumber}
+                />
+            )}
         </div>
     );
 }

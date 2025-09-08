@@ -3,27 +3,44 @@
 import { useState } from "react";
 import { Room } from "@/types/room";
 import { ReservationModal } from "./ReservationModal";
+import { QRCodeSVG } from "qrcode.react";
 
 interface RoomCardProps {
   room: Room;
-  onReserve?: (roomId: number, username: string) => void;
+  onReserve?: (roomId: number, guestData: { full_name: string; phone_number: string }) => void;
   onCancel?: (roomId: number) => void;
+  onShowQR?: (roomId: number) => void;
 }
 
-export function RoomCard({ room, onReserve, onCancel }: RoomCardProps) {
+export function RoomCard({ room, onReserve, onCancel, onShowQR }: RoomCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showQRPopup, setShowQRPopup] = useState(false);
 
   const handleReserveClick = () => {
     setIsModalOpen(true);
+  };
+
+
+  const handleShowQRClick = () => {
+    if (onShowQR) {
+      onShowQR(room.room_number);
+    } else {
+      // Fallback: show QR popup directly on the card
+      setShowQRPopup(true);
+    }
+  };
+
+  const handleCloseQRPopup = () => {
+    setShowQRPopup(false);
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
 
-  const handleConfirmReservation = (roomNumber: number, username: string) => {
+  const handleConfirmReservation = (roomNumber: number, guestData: { full_name: string; phone_number: string }) => {
     if (onReserve) {
-      onReserve(roomNumber, username);
+      onReserve(roomNumber, guestData);
     }
     setIsModalOpen(false);
   };
@@ -62,7 +79,7 @@ export function RoomCard({ room, onReserve, onCancel }: RoomCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+    <div className="relative bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-xl font-semibold text-gray-900">
@@ -113,13 +130,25 @@ export function RoomCard({ room, onReserve, onCancel }: RoomCardProps) {
           </button>
         )}
         
-        {room.status === "reserve" && onCancel && (
-          <button
-            onClick={() => onCancel(room.room_number)}
-            className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors"
-          >
-            Cancel Reservation
-          </button>
+        {room.status === "reserve" && (
+          <div className="flex gap-2 w-full">
+            {onShowQR && (
+              <button
+                onClick={handleShowQRClick}
+                className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors"
+              >
+                Show QR Code
+              </button>
+            )}
+            {onCancel && (
+              <button
+                onClick={() => onCancel(room.room_number)}
+                className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         )}
         
         {room.status === "unavailable" && (
@@ -138,6 +167,88 @@ export function RoomCard({ room, onReserve, onCancel }: RoomCardProps) {
         onClose={handleModalClose}
         onConfirm={handleConfirmReservation}
       />
+
+      {/* QR Code Popup */}
+      {showQRPopup && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 rounded-lg">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Room {room.room_number} - QR Code
+              </h3>
+              <button
+                onClick={handleCloseQRPopup}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+
+            {room.qrcode_base64 ? (
+              <div className="text-center">
+                <img 
+                  src={room.qrcode_base64} 
+                  alt="QR Code" 
+                  className="w-48 h-48 mx-auto mb-4 object-contain"
+                />
+                <p className="text-sm text-gray-600 mb-4">
+                  Scan this QR code to auto-login
+                </p>
+                {room.qr_code_data && (
+                  <div className="text-xs text-gray-500">
+                    <p><strong>Username:</strong> {JSON.parse(room.qr_code_data).username}</p>
+                    <p><strong>Password:</strong> {JSON.parse(room.qr_code_data).password}</p>
+                    {JSON.parse(room.qr_code_data).full_name && (
+                      <>
+                        <p><strong>Name:</strong> {JSON.parse(room.qr_code_data).full_name}</p>
+                        <p><strong>Phone:</strong> {JSON.parse(room.qr_code_data).phone_number}</p>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center">
+                <div className="bg-white p-4 rounded-lg border-2 border-gray-200 inline-block mb-4">
+                  <QRCodeSVG
+                    value={`${window.location.origin}/login/qrcode?loginname=${encodeURIComponent(room.current_guest || '')}&password=123`}
+                    size={150}
+                    level="M"
+                    includeMargin={true}
+                  />
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                  Scan this QR code to auto-login
+                </p>
+                <div className="text-xs text-gray-500">
+                  <p><strong>Username:</strong> {room.current_guest}</p>
+                  <p><strong>Password:</strong> 123</p>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={handleCloseQRPopup}
+                className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  const url = room.qr_code_data 
+                    ? JSON.parse(room.qr_code_data).autoLoginUrl 
+                    : `${window.location.origin}/login/qrcode?loginname=${encodeURIComponent(room.current_guest || '')}&password=123`;
+                  navigator.clipboard.writeText(url);
+                }}
+                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Copy URL
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

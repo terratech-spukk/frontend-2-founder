@@ -7,7 +7,7 @@ const SALT_ROUNDS = 10;
   
   export async function POST(req: NextRequest) {
     try {
-      const { username, password, role, room_id }: RegisterRequest = await req.json();
+      const { username, password, role, room_id, full_name, phone_number }: RegisterRequest = await req.json();
       if (!username || !password || !role)
         return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   
@@ -33,6 +33,8 @@ const SALT_ROUNDS = 10;
           role,
           expire: false,
           room_id: room_id || null,
+          full_name: full_name || null,
+          phone_number: phone_number || null,
         }),
       });
   

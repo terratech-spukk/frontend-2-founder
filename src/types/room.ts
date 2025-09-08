@@ -5,6 +5,8 @@ export interface Room {
   status: "available" | "reserve" | "unavailable";
   price: number;
   current_guest: string | null;
+  qrcode_base64?: string | null;
+  qr_code_data?: string | null;
 }
 
 export interface ReserveRoomRequest {
