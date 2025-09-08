@@ -27,6 +27,25 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Room not reserve" }, { status: 400 });
         }
 
+        const getAccount = await fetch(`${API_BASE}/finance-accounts?id=${room.current_guest}`);
+        let account = await getAccount.json();
+        if (!account) {
+            return NextResponse.json({ error: "current guest account not found" }, { status: 404 });
+        }
+        account = account[0];
+
+        const updateAccount = await fetch(`${API_BASE}/finance-accounts/${account.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                expire: true
+            }),
+        });
+
+        if (!updateAccount.ok) {
+            return NextResponse.json({ error: "Failed to update account expire" }, { status: 500 });
+        }
+
         const cancelRoom = await fetch(`${API_BASE}/hotel-rooms/${hotel_room_id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },

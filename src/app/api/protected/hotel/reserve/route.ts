@@ -16,7 +16,30 @@ export async function POST(req: NextRequest) {
             hotel_room_id: z.string(),
             username: z.string()
         }).parse(await req.json());
-        console.log(hotel_room_id, username);
+        
+        const getAccount = await fetch(`${API_BASE}/finance-accounts?id=${username}`);
+        const accountData = await getAccount.json();
+        let account = accountData[0];
+        
+        if (!account) {
+            const createAccount = await fetch(`${req.nextUrl.origin}/api/auth/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    username: username,
+                    password: "123",
+                    role: "user"
+                }),
+            });
+            
+            if (!createAccount.ok) {
+                const errorData = await createAccount.json();
+                return NextResponse.json({ error: `Failed to create account: ${errorData.error}` }, { status: 500 });
+            }
+
+            const newAccountData = await createAccount.json();
+            account = newAccountData.data;
+        }
 
         const getRoomStatus = await fetch(`${API_BASE}/hotel-rooms?id=${hotel_room_id}`);
         if (!getRoomStatus.ok) {
@@ -51,6 +74,18 @@ export async function POST(req: NextRequest) {
 
         if (!reserveRoom.ok) {
             return NextResponse.json({ error: "Failed to reserve room" }, { status: 500 });
+        }
+        
+        const updateAccount = await fetch(`${API_BASE}/finance-accounts/${account.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                room_id: room.room_number
+            }),
+        });
+        
+        if (!updateAccount.ok) {
+            return NextResponse.json({ error: "Failed to update account" }, { status: 500 });
         }
         
         const data = await reserveRoom.json();
