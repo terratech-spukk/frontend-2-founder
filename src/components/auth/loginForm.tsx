@@ -2,12 +2,54 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/components/SessionProvider";
 
 export  function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const router = useRouter();
+    const { login } = useSession();
 
     const togglePassword = () => {
       setShowPassword(!showPassword);
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setIsLoading(true);
+      setError("");
+
+      const formData = new FormData(e.currentTarget);
+      const username = formData.get("username") as string;
+      const password = formData.get("password") as string;
+
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Use session context to store user data
+          login(data.token, data.user);
+          
+          // Redirect to dashboard
+          router.push("/dashboard");
+        } else {
+          setError(data.error || "Login failed");
+        }
+      } catch (err) {
+        setError("Network error. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
     };
   
     return (
@@ -24,20 +66,20 @@ export  function LoginForm() {
               <h1 className="text-4xl mb-2">Login</h1>
               <p className="text-lg mb-8">Use room number and hotel code</p>
   
-              <form id="loginForm">
+              <form onSubmit={handleSubmit}>
                 <input
                   type="text"
-                  placeholder="Use room number"
-                  id="roomNumber"
+                  name="username"
+                  placeholder="Username"
                   required
                   className="w-full px-4 py-4 mb-5 border-2 border-[rgba(199,167,103,0.8)] bg-[rgba(80,79,61,0.8)] rounded-lg text-white text-base placeholder:text-white/60 backdrop-blur-md outline-none"
                 />
-  
+
                 <div className="relative flex items-center py-5">
                   <input
                     type={showPassword ? "text" : "password"}
+                    name="password"
                     placeholder="Password"
-                    id="password"
                     required
                     className="w-full px-4 py-4 pr-12 border-2 border-[rgba(199,167,103,0.8)] bg-[rgba(80,79,61,0.8)] rounded-lg text-white text-base placeholder:text-white/60 backdrop-blur-md outline-none"
                   />
@@ -66,16 +108,21 @@ export  function LoginForm() {
                     />
                   )}
                 </div>
-  
+
                 <button
                   type="submit"
-                  className="w-full py-4 bg-[#cfa349] rounded-lg text-lg font-bold text-white hover:bg-[#b8903e] transition-colors"
+                  disabled={isLoading}
+                  className="w-full py-4 bg-[#cfa349] rounded-lg text-lg font-bold text-white hover:bg-[#b8903e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Login
+                  {isLoading ? "Logging in..." : "Login"}
                 </button>
               </form>
-  
-              <div id="message" className="mt-4 font-bold"></div>
+
+              {error && (
+                <div className="mt-4 font-bold text-red-400 text-center">
+                  {error}
+                </div>
+              )}
   
               {/* <a href="#" className="block mt-5 text-base text-white underline">
                 HELP
