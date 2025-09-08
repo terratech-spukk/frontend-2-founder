@@ -30,14 +30,15 @@ export default function DashboardPage() {
             setRooms(response.data);
             
             // Show success toast for room loading
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching rooms:', error);
-            setRoomsError('Failed to load room data. Please try again.');
+            const errorMessage = error?.response?.data?.error || error?.message || 'Failed to load room data. Please try again.';
+            setRoomsError(errorMessage);
             
             // Show error toast for room loading failure
             addToast({
                 title: "Loading Failed",
-                description: "Failed to load room data. Please try again.",
+                description: errorMessage,
                 color: "danger",
                 timeout: 4000,
             });
@@ -80,7 +81,8 @@ export default function DashboardPage() {
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
             }
             
             // Show success toast
@@ -92,13 +94,14 @@ export default function DashboardPage() {
             });
             
             console.log(`Room ${roomNumber} reserved for ${username} successfully`);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error reserving room:', error);
+            const errorMessage = error?.message || 'Failed to reserve the room. Please try again.';
             
             // Show error toast
             addToast({
                 title: "Reservation Failed",
-                description: "Failed to reserve the room. Please try again.",
+                description: errorMessage,
                 color: "danger",
                 timeout: 4000,
             });
@@ -138,7 +141,8 @@ export default function DashboardPage() {
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
             }
             
             // Show success toast
@@ -150,13 +154,14 @@ export default function DashboardPage() {
             });
             
             console.log(`Reservation for room ${roomNumber} cancelled successfully`);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error cancelling reservation:', error);
+            const errorMessage = error?.message || 'Failed to cancel the reservation. Please try again.';
             
             // Show error toast
             addToast({
                 title: "Cancellation Failed",
-                description: "Failed to cancel the reservation. Please try again.",
+                description: errorMessage,
                 color: "danger",
                 timeout: 4000,
             });
