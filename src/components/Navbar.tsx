@@ -12,8 +12,12 @@ export function Navbar() {
     router.push("/login");
   };
 
-  const handleClick = () => {
-    router.push('/');
+  const handleMenu = () => {
+    router.push('/menu');
+  };
+
+  const handleDashboard = () => {
+    router.push('/dashboard');
   };
 
   if (isLoading) {
@@ -22,7 +26,7 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 onClick={handleClick} className="text-white text-xl font-bold cursor-pointer">TERRATECH</h1>
+              <h1 onClick={handleMenu} className="text-white text-xl font-bold cursor-pointer hover:text-gray-300 transition-colors">TERRATECH</h1>
             </div>
             <div className="text-white">Loading...</div>
           </div>
@@ -35,8 +39,11 @@ export function Navbar() {
     <nav className="bg-[#cfa349] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <h1 onClick={handleClick} className="text-white text-xl font-bold cursor-pointer">TERRATECH</h1>
+          <div className="flex items-center space-x-4">
+            <h1 onClick={handleMenu} className="text-white text-xl font-bold cursor-pointer hover:text-gray-300 transition-colors">TERRATECH</h1>
+            {user?.role === "admin" && (
+              <div onClick={handleDashboard} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Dashboard</div>
+            )}
           </div>
           
           <div className="flex items-center space-x-4">
