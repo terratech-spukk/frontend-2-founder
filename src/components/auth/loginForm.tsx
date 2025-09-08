@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 export  function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
@@ -43,20 +44,24 @@ export  function LoginForm() {
 
                   {/* Eye off */}
                   {!showPassword && (
-                    <img
-                      src="hide.png"
+                    <Image
+                      src="/hide.png"
                       alt="Eye Off"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 cursor-pointer"
+                      width={24}
+                      height={24}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
                       onClick={togglePassword}
-                    />
+                  />
                   )}
 
                   {/* Eye on */}
                   {showPassword && (
-                    <img
-                      src="view.png"
+                    <Image
+                      src="/view.png"
                       alt="Eye On"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 cursor-pointer"
+                      width={24}
+                      height={24}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
                       onClick={togglePassword}
                     />
                   )}

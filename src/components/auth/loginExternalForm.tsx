@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 export function LoginExternalForm() {
   
     return (
@@ -26,10 +28,12 @@ export function LoginExternalForm() {
                 />
 
                 <div className="w-[200px] h-[200px] bg-[rgba(80,79,61,0.8)] border-2 border-[rgba(199,167,103,0.8)] rounded-lg p-2 backdrop-blur-md flex justify-center items-center mx-auto mb-5">
-                      <img
+                      <Image
                         src="/messageImage_1757311093912.jpg"
                         alt="QR Code"
                         className="max-w-full max-h-[200px] object-contain rounded-md"
+                        width={200}
+                        height={200}
                       />
                 </div>
   
