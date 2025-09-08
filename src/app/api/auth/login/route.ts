@@ -2,19 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { API_BASE , JWT_SECRET } from "../../base";
 import { SignJWT } from "jose";
-
-interface Account {
-  id: string;
-  password: string;
-  role: "admin" | "kitchen" | "user";
-  expire: boolean;
-  room_id: number | null;
-}
-
-interface LoginRequest {
-  username: string;
-  password: string;
-}
+import { LoginRequest } from "@/types/user";
+import { Account } from "@/types/user";
 
 export async function POST(req: NextRequest) {
   try {

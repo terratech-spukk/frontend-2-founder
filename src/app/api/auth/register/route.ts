@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { API_BASE } from "../../base";
+import { RegisterRequest } from "@/types/user";
 
 const SALT_ROUNDS = 10;
-
-interface RegisterRequest {
-    username: string; // backend expects "id"
-    password: string;
-    role: "admin" | "kitchen" | "user";
-    room_id?: number | null;
-  }
   
   export async function POST(req: NextRequest) {
     try {
