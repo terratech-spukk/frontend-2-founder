@@ -58,7 +58,7 @@ const FoodMenuPage = () => {
   };
 
   const getImageSrc = (menu: MenuItem): string => {
-    return failedImages.has(menu.image) ? '/notfound.png' : menu.image;
+    return failedImages.has(menu.image) ? 'https://placehold.co/1200x768' : menu.image;
   };
 
   // Filter menus based on search query, price range, popular filter, spice level, and category - optimized for instant updates
