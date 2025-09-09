@@ -19,7 +19,12 @@ export async function middleware(req: NextRequest) {
     console.log("userId", userId);
 
     // 2️⃣ Fetch account from backend to check expire
-    const res = await fetch(`${API_BASE}/finance-accounts?id=${userId}`);
+    const res = await fetch(`${API_BASE}/finance-accounts?id=${userId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     if (!res.ok) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     const accounts = await res.json();
