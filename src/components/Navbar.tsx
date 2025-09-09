@@ -160,7 +160,7 @@ export function Navbar() {
             {user?.role === "admin" && (
               <>
                 <div onClick={handleDashboard} className="text-white text-lg font-bold cursor-pointer underline hover:text-gray-300 transition-colors px-2 py-1">Order Dashboard</div>
-                <div onClick={handleActivity} className="text-white text-lg font-bold cursor-pointer underline hover:text-gray-300 transition-colors px-2 py-1">Activity</div>
+                <div onClick={handleActivity} className="text-white text-lg font-bold cursor-pointer underline hover:text-gray-300 transition-colors px-2 py-1">Booking Dashboard</div>
                 <div onClick={handleFoodEdit} className="text-white text-lg font-bold cursor-pointer underline hover:text-gray-300 transition-colors px-2 py-1">Food Edit</div>
               </>
             )}
