@@ -69,7 +69,10 @@ const FoodMenuPage = () => {
   };
 
   const getImageSrc = (menu: MenuItem): string => {
-    return failedImages.has(menu.image) ? 'https://placehold.co/1200x768' : menu.image;
+    if (!menu.image || menu.image.trim() === '' || failedImages.has(menu.image)) {
+      return 'https://placehold.co/1200x768';
+    }
+    return menu.image;
   };
 
   // Filter menus based on search query, price range, popular filter, spice level, and category - optimized for instant updates
@@ -191,15 +194,12 @@ const FoodMenuPage = () => {
     <>
     <div className="min-h-screen z-10 bg-[url('/bg_hotel.png')] bg-no-repeat bg-cover bg-center bg-fixed">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      {/* <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <h1 className="text-3xl font-bold text-gray-900">Our Menu</h1>
           <p className="mt-2 text-gray-600">เมนูอาหารของเรา</p>
-          
-
-              
             </div>
-          </div>
+          </div> */}
 
       {/* Filter Toggle Button */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -452,14 +452,16 @@ const FoodMenuPage = () => {
             >
               {/* Image */}
               <div className="relative h-48 w-full">
-                <Image
-                  src={getImageSrc(menu)}
-                  alt={menu.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  onError={() => handleImageError(menu.image)}
-                />
+                {getImageSrc(menu) && (
+                  <Image
+                    src={getImageSrc(menu)}
+                    alt={menu.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    onError={() => handleImageError(menu.image)}
+                  />
+                )}
                 {menu.is_popular && (
                   <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
                     Popular
