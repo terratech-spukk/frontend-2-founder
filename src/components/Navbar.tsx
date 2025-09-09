@@ -68,10 +68,10 @@ export function Navbar() {
             <h1 onClick={handleMenu} className="text-white text-xl font-bold cursor-pointer hover:text-gray-300 transition-colors">Menu</h1>
             {user?.role === "admin" && (
               <>
-                <div onClick={handleDashboard} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Dashboard</div>
+                <div onClick={handleDashboard} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors">Order Dashboard</div>
                 <div onClick={handleActivity} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Activity</div>
                 <div onClick={handleFoodEdit} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Food Edit</div>
-                <div onClick={handleAdminOrders} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Orders</div>
+                {/* <div onClick={handleAdminOrders} className="text-white text-xl font-bold cursor-pointer underline hover:text-gray-300 transition-colors"> Orders</div> */}
               </>
             )}
             {user && (
