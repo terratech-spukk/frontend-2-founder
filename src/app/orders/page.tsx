@@ -28,7 +28,7 @@ export default function OrdersPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/food-orders?created_by=${user.id}`, {
+      const response = await api.get(`/food-orders?created_by=${user?.id}`, {
       });
 
       if (response.status !== 200) {
