@@ -20,6 +20,7 @@ export default function FoodEditPage() {
   const [error, setError] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<FoodMenu | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     fetchFoodMenus();
@@ -69,27 +70,47 @@ export default function FoodEditPage() {
   const handleEdit = (item: FoodMenu) => {
     setEditingItem(item);
     setIsEditing(true);
+    setIsAdding(false);
+  };
+
+  const handleAdd = () => {
+    setEditingItem(null);
+    setIsAdding(true);
+    setIsEditing(false);
   };
 
   const handleSave = async (updatedItem: FoodMenu) => {
     try {
-      // Here you would typically make an API call to update the item
-      await api.put(`/food-menus/${updatedItem.id}`, updatedItem);
-      
-      // For now, update the local state
-      setFoodMenus(prev => 
-        prev.map(item => item.id === updatedItem.id ? updatedItem : item)
-      );
+      if (isAdding) {
+        // Remove the ID from the request body - let the backend auto-generate it
+        const { id, ...itemWithoutId } = updatedItem;
+        await api.post('/food-menus/', itemWithoutId);
+      } else {
+        await api.patch(`/food-menus/${updatedItem.id}`, updatedItem);
+      }
+      fetchFoodMenus();
       setIsEditing(false);
+      setIsAdding(false);
       setEditingItem(null);
-    } catch (err) {
-      console.error('Error updating food menu:', err);
-      setError('Failed to update food menu');
+    } catch (err: any) {
+      console.error('Error saving food menu:', err);
+      
+      if (isAdding && err?.response?.status === 404) {
+        setError('The backend API does not support creating new food items. Please contact the administrator to add new food items through the backend system.');
+      } else {
+        setError(`Failed to ${isAdding ? 'create' : 'update'} food menu: ${err?.response?.data?.message || err.message}`);
+      }
+      
+      // Reset the adding state on error
+      if (isAdding) {
+        setIsAdding(false);
+      }
     }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
+    setIsAdding(false);
     setEditingItem(null);
   };
 
@@ -134,11 +155,32 @@ export default function FoodEditPage() {
             item={editingItem}
             onSave={handleSave}
             onCancel={handleCancel}
+            isAdding={false}
+          />
+        ) : isAdding ? (
+          <FoodEditForm
+            item={{
+              id: '',
+              name: '',
+              name_en: '',
+              category_id: categories[0]?.id || '',
+              price: 0,
+              description: '',
+              image: '',
+              spice_level: 0,
+              is_popular: false,
+              ingredients: [],
+              allergens: []
+            }}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            isAdding={true}
           />
         ) : (
           <FoodMenuList
             items={foodMenus}
             onEdit={handleEdit}
+            onAdd={handleAdd}
           />
         )}
       </div>
@@ -149,13 +191,20 @@ export default function FoodEditPage() {
 interface FoodMenuListProps {
   items: FoodMenu[];
   onEdit: (item: FoodMenu) => void;
+  onAdd: () => void;
 }
 
-function FoodMenuList({ items, onEdit }: FoodMenuListProps) {
+function FoodMenuList({ items, onEdit, onAdd }: FoodMenuListProps) {
   return (
     <div className="bg-white shadow rounded-lg">
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
         <h2 className="text-lg font-medium text-gray-900">Food Menu Items</h2>
+        <button
+          onClick={onAdd}
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+          Add New Food
+        </button>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
@@ -234,9 +283,10 @@ interface FoodEditFormProps {
   item: FoodMenu;
   onSave: (item: FoodMenu) => void;
   onCancel: () => void;
+  isAdding: boolean;
 }
 
-function FoodEditForm({ item, onSave, onCancel }: FoodEditFormProps) {
+function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
   const [formData, setFormData] = useState<FoodMenu>(item);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -251,7 +301,9 @@ function FoodEditForm({ item, onSave, onCancel }: FoodEditFormProps) {
   return (
     <div className="bg-white shadow rounded-lg">
       <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-lg font-medium text-gray-900">Edit Food Menu Item</h2>
+        <h2 className="text-lg font-medium text-gray-900">
+          {isAdding ? 'Add New Food Menu Item' : 'Edit Food Menu Item'}
+        </h2>
       </div>
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -394,7 +446,7 @@ function FoodEditForm({ item, onSave, onCancel }: FoodEditFormProps) {
             type="submit"
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
-            Save Changes
+            {isAdding ? 'Add Food Item' : 'Save Changes'}
           </button>
         </div>
       </form>
