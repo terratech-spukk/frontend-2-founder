@@ -3,7 +3,7 @@
 import { useSession } from "@/components/SessionProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
-import { BookingHistory } from "@/types/room";
+import { BookingHistory, RawBookingResponse } from "@/types/room";
 import { api } from "@/lib/axios";
 import { addToast } from "@heroui/react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, Legend } from 'recharts';
@@ -38,11 +38,11 @@ export default function ActivityPage() {
             console.log('Fetched bookings data:', response.data);
             
             // Handle both direct array response and wrapped response
-            const bookingsData = Array.isArray(response.data) ? response.data : response.data.bookings || [];
+            const bookingsData: RawBookingResponse[] = Array.isArray(response.data) ? response.data : response.data.bookings || [];
             
             if (bookingsData && bookingsData.length > 0) {
                 // Transform the booking data to include status
-                const transformedBookings = bookingsData.map((booking: any) => {
+                const transformedBookings = bookingsData.map((booking: RawBookingResponse): BookingHistory => {
                     let status: "reserved" | "checked_in" | "checked_out" | "cancelled" = "reserved";
                     
                     if (booking.unreserve_at) {
@@ -65,9 +65,22 @@ export default function ActivityPage() {
             } else {
                 setBookings([]);
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error fetching bookings:', error);
-            const errorMessage = error?.response?.data?.error || error?.message || 'Failed to load booking history. Please try again.';
+            
+            // Type-safe error handling
+            let errorMessage = 'Failed to load booking history. Please try again.';
+            
+            if (error && typeof error === 'object') {
+                if ('response' in error && error.response && typeof error.response === 'object' && 'data' in error.response) {
+                    const responseData = error.response.data as { error?: string };
+                    if (responseData?.error) {
+                        errorMessage = responseData.error;
+                    }
+                } else if ('message' in error && typeof error.message === 'string') {
+                    errorMessage = error.message;
+                }
+            }
             setBookingsError(errorMessage);
             
             addToast({
@@ -141,16 +154,6 @@ export default function ActivityPage() {
             minute: '2-digit'
         });
     };
-
-    // Calculate total income from checked-out guests only
-    const totalIncome = bookings
-        .filter(booking => booking.status === "checked_out")
-        .reduce((total, booking) => total + booking.price, 0);
-
-    // Calculate expected income from reserved and checked-in guests
-    const expectedIncome = bookings
-        .filter(booking => booking.status === "reserved" || booking.status === "checked_in")
-        .reduce((total, booking) => total + booking.price, 0);
 
     // Filter bookings by date range
     const filteredBookings = useMemo(() => {

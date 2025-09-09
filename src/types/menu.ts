@@ -3,9 +3,9 @@ export interface MenuItem {
     name: string;
     name_en: string;
     category_id: string;
-    price: number;
+    price: number; // float value
     description: string;
-    image: string;
+    image: string; // URL string
     spice_level: number;
     is_popular: boolean;
     ingredients: string[];

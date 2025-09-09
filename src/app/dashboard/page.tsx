@@ -9,6 +9,15 @@ import { Room } from "@/types/room";
 import { api } from "@/lib/axios";
 import { addToast } from "@heroui/react";
 
+interface ApiError {
+    response?: {
+        data?: {
+            error?: string;
+        };
+    };
+    message?: string;
+}
+
 export default function DashboardPage() {
     const { user, isLoading } = useSession();
     const router = useRouter();
@@ -20,7 +29,14 @@ export default function DashboardPage() {
         username: string;
         password: string;
         autoLoginUrl: string;
-        qrCodeData?: any;
+        qrCodeData?: {
+            username: string;
+            password: string;
+            autoLoginUrl: string;
+            qrCodeImage?: string;
+            full_name?: string;
+            phone_number?: string;
+        };
     } | null>(null);
     const [qrRoomNumber, setQrRoomNumber] = useState<number | null>(null);
 
@@ -40,9 +56,10 @@ export default function DashboardPage() {
             setRooms(response.data);
             
             // Show success toast for room loading
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error fetching rooms:', error);
-            const errorMessage = error?.response?.data?.error || error?.message || 'Failed to load room data. Please try again.';
+            const apiError = error as ApiError;
+            const errorMessage = apiError?.response?.data?.error || apiError?.message || 'Failed to load room data. Please try again.';
             setRoomsError(errorMessage);
             
             // Show error toast for room loading failure
@@ -129,9 +146,10 @@ export default function DashboardPage() {
             setQrModalOpen(true);
             
             console.log(`Room ${roomNumber} reserved successfully with credentials:`, responseData.credentials);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error reserving room:', error);
-            const errorMessage = error?.message || 'Failed to reserve the room. Please try again.';
+            const apiError = error as ApiError;
+            const errorMessage = apiError?.message || 'Failed to reserve the room. Please try again.';
             
             // Show error toast
             addToast({
@@ -232,7 +250,7 @@ export default function DashboardPage() {
                 setQrRoomNumber(roomNumber);
                 setQrModalOpen(true);
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error fetching QR code:', error);
             addToast({
                 title: "Error",
@@ -294,9 +312,10 @@ export default function DashboardPage() {
             });
             
             console.log(`Room ${roomNumber} checked in successfully`);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error checking in room:', error);
-            const errorMessage = error?.message || 'Failed to check in the room. Please try again.';
+            const apiError = error as ApiError;
+            const errorMessage = apiError?.message || 'Failed to check in the room. Please try again.';
             
             // Show error toast
             addToast({
@@ -368,9 +387,10 @@ export default function DashboardPage() {
             });
             
             console.log(`Room ${roomNumber} checked out successfully`);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error checking out room:', error);
-            const errorMessage = error?.message || 'Failed to check out the room. Please try again.';
+            const apiError = error as ApiError;
+            const errorMessage = apiError?.message || 'Failed to check out the room. Please try again.';
             
             // Show error toast
             addToast({
@@ -428,9 +448,10 @@ export default function DashboardPage() {
             });
             
             console.log(`Reservation for room ${roomNumber} cancelled successfully`);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error cancelling reservation:', error);
-            const errorMessage = error?.message || 'Failed to cancel the reservation. Please try again.';
+            const apiError = error as ApiError;
+            const errorMessage = apiError?.message || 'Failed to cancel the reservation. Please try again.';
             
             // Show error toast
             addToast({

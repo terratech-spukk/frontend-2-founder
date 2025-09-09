@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/axios';
-import { MenuItem, ApiResponse } from '@/types/menu';
+import { MenuItem } from '@/types/menu';
 import { categories } from '@/data/food_categories';
+import Image from 'next/image';
 
 interface FoodMenu extends MenuItem {
   category_name?: string;
@@ -166,10 +167,12 @@ function FoodMenuList({ items, onEdit }: FoodMenuListProps) {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     {item.image && (
-                      <img
+                      <Image
                         className="h-10 w-10 rounded-lg object-cover mr-4"
                         src={item.image}
                         alt={item.name}
+                        width={40}
+                        height={40}
                       />
                     )}
                     <div>
@@ -238,7 +241,7 @@ function FoodEditForm({ item, onSave, onCancel }: FoodEditFormProps) {
     onSave(formData);
   };
 
-  const handleChange = (field: keyof FoodMenu, value: any) => {
+  const handleChange = (field: keyof FoodMenu, value: FoodMenu[keyof FoodMenu]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

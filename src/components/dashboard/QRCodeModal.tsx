@@ -3,6 +3,15 @@
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 
+interface QRCodeData {
+  username: string;
+  password: string;
+  autoLoginUrl: string;
+  qrCodeImage?: string;
+  full_name?: string;
+  phone_number?: string;
+}
+
 interface QRCodeModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -10,7 +19,7 @@ interface QRCodeModalProps {
     username: string;
     password: string;
     autoLoginUrl: string;
-    qrCodeData?: any;
+    qrCodeData?: QRCodeData;
   };
   roomNumber: number;
 }

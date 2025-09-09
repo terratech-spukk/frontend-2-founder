@@ -3,7 +3,7 @@ import { API_BASE } from "../../../../base";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = {
@@ -16,7 +16,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const roomId = params.id;
+    const { id: roomId } = await params;
     
     // Fetch room data from backend
     const response = await fetch(`${API_BASE}/hotel-rooms?id=${roomId}`);

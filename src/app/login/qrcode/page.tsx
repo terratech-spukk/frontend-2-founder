@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/components/SessionProvider";
-import Image from "next/image";
 
-export default function AutoLoginPage() {
+function AutoLoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isAutoLoggingIn, setIsAutoLoggingIn] = useState(false);
@@ -169,5 +168,23 @@ export default function AutoLoginPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function AutoLoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex bg-[url('/bg_hotel.png')] bg-no-repeat bg-cover justify-center items-center h-screen">
+        <div className="bg-[rgba(207,163,73,0.2)] backdrop-blur-md p-16 rounded-2xl shadow-xl text-white">
+          <div className="text-white text-center w-[400px] max-w-[90vw]">
+            <h2 className="text-yellow-400 text-2xl mb-3">TERRATECH</h2>
+            <h1 className="text-4xl mb-2">Loading...</h1>
+            <p className="text-lg">Please wait while we load the login page...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <AutoLoginContent />
+    </Suspense>
   );
 }
