@@ -36,7 +36,7 @@ export function Navbar() {
   };
 
   const handleAdminOrders = () => {
-    router.push('/admin/orders');
+    router.push('/dashboard');
   };
 
   const handleCart = () => {
