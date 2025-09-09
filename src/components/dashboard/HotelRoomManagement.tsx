@@ -52,7 +52,7 @@ export function HotelRoomManagement({ onError }: HotelRoomManagementProps) {
                     'Content-Type': 'application/json'
                 }
             });
-            console.log('Fetched rooms data:', response.data);
+            // console.log('Fetched rooms data:', response.data);
             setRooms(response.data);
         } catch (error: unknown) {
             console.error('Error fetching rooms:', error);
@@ -133,7 +133,7 @@ export function HotelRoomManagement({ onError }: HotelRoomManagementProps) {
             setQrRoomNumber(roomNumber);
             setQrModalOpen(true);
             
-            console.log(`Room ${roomNumber} reserved successfully with credentials:`, responseData.credentials);
+            // console.log(`Room ${roomNumber} reserved successfully with credentials:`, responseData.credentials);
         } catch (error: unknown) {
             console.error('Error reserving room:', error);
             const apiError = error as ApiError;
@@ -153,7 +153,7 @@ export function HotelRoomManagement({ onError }: HotelRoomManagementProps) {
     const handleShowQR = async (roomNumber: number) => {
         try {
             const room = rooms.find(r => r.room_number === roomNumber);
-            console.log('Room data:', room);
+            // console.log('Room data:', room);
             
             if (!room?.current_guest) {
                 console.error('No current guest found for room');
@@ -175,7 +175,7 @@ export function HotelRoomManagement({ onError }: HotelRoomManagementProps) {
                 setQrRoomNumber(roomNumber);
                 setQrModalOpen(true);
             } else {
-                console.log('QR code data not found in local state, fetching from API...');
+                // console.log('QR code data not found in local state, fetching from API...');
                 const token = localStorage.getItem("token");
                 const response = await fetch(`/api/protected/hotel/rooms/${room.id}`, {
                     headers: {
@@ -185,7 +185,7 @@ export function HotelRoomManagement({ onError }: HotelRoomManagementProps) {
                 
                 if (response.ok) {
                     const freshRoomData = await response.json();
-                    console.log('Fresh room data:', freshRoomData);
+                    // console.log('Fresh room data:', freshRoomData);
                     
                     if (freshRoomData.qrcode_base64 && freshRoomData.qr_code_data) {
                         const qrCodeData = JSON.parse(freshRoomData.qr_code_data);
@@ -205,7 +205,7 @@ export function HotelRoomManagement({ onError }: HotelRoomManagementProps) {
                     }
                 }
                 
-                console.log('No QR code data found, attempting to generate from username...');
+                // console.log('No QR code data found, attempting to generate from username...');
                 const username = room.current_guest;
                 const baseUrl = window.location.origin;
                 const autoLoginUrl = `${baseUrl}/login/qrcode?loginname=${encodeURIComponent(username)}&password=123`;
@@ -280,7 +280,7 @@ export function HotelRoomManagement({ onError }: HotelRoomManagementProps) {
                 timeout: 4000,
             });
             
-            console.log(`Room ${roomNumber} checked in successfully`);
+            // console.log(`Room ${roomNumber} checked in successfully`);
         } catch (error: unknown) {
             console.error('Error checking in room:', error);
             const apiError = error as ApiError;
@@ -348,7 +348,7 @@ export function HotelRoomManagement({ onError }: HotelRoomManagementProps) {
                 timeout: 4000,
             });
             
-            console.log(`Room ${roomNumber} checked out successfully`);
+            // console.log(`Room ${roomNumber} checked out successfully`);
         } catch (error: unknown) {
             console.error('Error checking out room:', error);
             const apiError = error as ApiError;
@@ -403,7 +403,7 @@ export function HotelRoomManagement({ onError }: HotelRoomManagementProps) {
                 timeout: 4000,
             });
             
-            console.log(`Reservation for room ${roomNumber} cancelled successfully`);
+            // console.log(`Reservation for room ${roomNumber} cancelled successfully`);
         } catch (error: unknown) {
             console.error('Error cancelling reservation:', error);
             const apiError = error as ApiError;

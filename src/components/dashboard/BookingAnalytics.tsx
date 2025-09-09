@@ -35,7 +35,7 @@ export function BookingAnalytics({ onError }: BookingAnalyticsProps) {
                 }
             });
             
-            console.log('Fetched bookings data:', response.data);
+            // console.log('Fetched bookings data:', response.data);
             
             const bookingsData: RawBookingResponse[] = Array.isArray(response.data) ? response.data : response.data.bookings || [];
             

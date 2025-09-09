@@ -19,7 +19,7 @@ export async function middleware(req: NextRequest) {
 
     // 2️⃣ Fetch account from backend via internal proxy to avoid HTTPS/HTTP issues
     const proxyUrl = `${req.nextUrl.origin}/api/proxy/finance-accounts?id=${userId}`;
-    console.log("Using proxy URL:", proxyUrl);
+    // console.log("Using proxy URL:", proxyUrl);
     
     const res = await fetch(proxyUrl, {
       method: 'GET',
@@ -28,8 +28,8 @@ export async function middleware(req: NextRequest) {
       },
     });
     
-    console.log("Response status:", res.status);
-    console.log("Response ok:", res.ok);
+    // console.log("Response status:", res.status);
+    // console.log("Response ok:", res.ok);
     
     if (!res.ok) {
       const errorText = await res.text();

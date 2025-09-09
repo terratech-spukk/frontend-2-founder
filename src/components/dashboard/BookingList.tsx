@@ -34,7 +34,7 @@ export function BookingList({ onError }: BookingListProps) {
                 }
             });
             
-            console.log('Fetched bookings data:', response.data);
+            // console.log('Fetched bookings data:', response.data);
             
             const bookingsData: RawBookingResponse[] = Array.isArray(response.data) ? response.data : response.data.bookings || [];
             
