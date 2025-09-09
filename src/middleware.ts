@@ -3,7 +3,8 @@ import { jwtVerify } from "jose";
 import { JWT_SECRET } from "./app/api/base";
 
 export async function middleware(req: NextRequest) {
-  if (!req.nextUrl.pathname.startsWith("/api/protected")) return NextResponse.next();
+  if (!req.nextUrl.pathname.startsWith("/api/protected"))
+    return NextResponse.next();
 
   const authHeader = req.headers.get("authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -14,23 +15,26 @@ export async function middleware(req: NextRequest) {
 
   try {
     // 1️⃣ Verify JWT
-    const { payload } = await jwtVerify(token, new TextEncoder().encode(JWT_SECRET));
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(JWT_SECRET),
+    );
     const userId = payload.id;
 
     // 2️⃣ Fetch account from backend via internal proxy to avoid HTTPS/HTTP issues
     const proxyUrl = `${req.nextUrl.origin}/api/proxy/finance-accounts?id=${userId}`;
     // console.log("Using proxy URL:", proxyUrl);
-    
+
     const res = await fetch(proxyUrl, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
-    
+
     // console.log("Response status:", res.status);
     // console.log("Response ok:", res.ok);
-    
+
     if (!res.ok) {
       const errorText = await res.text();
       console.error("API Error:", errorText);
@@ -40,7 +44,8 @@ export async function middleware(req: NextRequest) {
     const accounts = await res.json();
     const account = accounts[0];
 
-    if (!account) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    if (!account)
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
     // 3️⃣ Check expire
     if (account.expire) {
@@ -55,7 +60,10 @@ export async function middleware(req: NextRequest) {
     return response;
   } catch (err) {
     console.error("JWT verify error:", err);
-    return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Invalid or expired token" },
+      { status: 401 },
+    );
   }
 }
 

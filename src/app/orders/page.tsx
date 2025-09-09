@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Order } from '@/types/order';
-import { useSession } from '@/components/SessionProvider';
-import { useRouter } from 'next/navigation';
-import { api } from '@/lib/axios';
+import { useState, useEffect } from "react";
+import { Order } from "@/types/order";
+import { useSession } from "@/components/SessionProvider";
+import { useRouter } from "next/navigation";
+import { api } from "@/lib/axios";
 
 export default function OrdersPage() {
   const { user, isLoading } = useSession();
@@ -12,11 +12,13 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'cooking' | 'serve'>('all');
+  const [filter, setFilter] = useState<"all" | "pending" | "cooking" | "serve">(
+    "all",
+  );
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
@@ -28,18 +30,17 @@ export default function OrdersPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/food-orders?created_by=${user?.id}`, {
-      });
+      const response = await api.get(`/food-orders?created_by=${user?.id}`, {});
 
       if (response.status !== 200) {
-        throw new Error('Failed to fetch orders');
+        throw new Error("Failed to fetch orders");
       }
 
       const data = response.data;
       // Handle array response
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -47,42 +48,42 @@ export default function OrdersPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'cooking':
-        return 'bg-blue-100 text-blue-800';
-      case 'serve':
-        return 'bg-green-100 text-green-800';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "cooking":
+        return "bg-blue-100 text-blue-800";
+      case "serve":
+        return "bg-green-100 text-green-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'cooking':
-        return 'Cooking';
-      case 'serve':
-        return 'Ready to Serve';
+      case "pending":
+        return "Pending";
+      case "cooking":
+        return "Cooking";
+      case "serve":
+        return "Ready to Serve";
       default:
         return status;
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
-  const filteredOrders = orders.filter(order => 
-    filter === 'all' || order.status === filter
+  const filteredOrders = orders.filter(
+    (order) => filter === "all" || order.status === filter,
   );
 
   if (isLoading || loading) {
@@ -119,25 +120,31 @@ export default function OrdersPage() {
         <div className="bg-white rounded-lg shadow-sm">
           <div className="px-6 py-4 border-b border-gray-200">
             <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
-            <p className="text-gray-600 mt-1">Track your food orders and their status</p>
+            <p className="text-gray-600 mt-1">
+              Track your food orders and their status
+            </p>
           </div>
 
           {/* Filter Tabs */}
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
               {[
-                { key: 'all', label: 'All Orders' },
-                { key: 'pending', label: 'Pending' },
-                { key: 'cooking', label: 'Cooking' },
-                { key: 'serve', label: 'Ready' },
+                { key: "all", label: "All Orders" },
+                { key: "pending", label: "Pending" },
+                { key: "cooking", label: "Cooking" },
+                { key: "serve", label: "Ready" },
               ].map((tab) => (
                 <button
                   key={tab.key}
-                  onClick={() => setFilter(tab.key as 'all' | 'pending' | 'cooking' | 'serve')}
+                  onClick={() =>
+                    setFilter(
+                      tab.key as "all" | "pending" | "cooking" | "serve",
+                    )
+                  }
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                     filter === tab.key
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? "bg-white text-blue-600 shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
                   {tab.label}
@@ -152,16 +159,15 @@ export default function OrdersPage() {
               <div className="px-6 py-12 text-center">
                 <div className="text-gray-400 text-6xl mb-4">🍽️</div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {filter === 'all' ? 'No orders yet' : `No ${filter} orders`}
+                  {filter === "all" ? "No orders yet" : `No ${filter} orders`}
                 </h3>
                 <p className="text-gray-500 mb-6">
-                  {filter === 'all' 
-                    ? 'Start by ordering some delicious food from our menu!'
-                    : `You don't have any ${filter} orders at the moment.`
-                  }
+                  {filter === "all"
+                    ? "Start by ordering some delicious food from our menu!"
+                    : `You don't have any ${filter} orders at the moment.`}
                 </p>
                 <button
-                  onClick={() => router.push('/menu')}
+                  onClick={() => router.push("/menu")}
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Browse Menu
@@ -173,7 +179,7 @@ export default function OrdersPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">
-                        Order #{order.id.split('_').pop()}
+                        Order #{order.id.split("_").pop()}
                       </h3>
                       <p className="text-sm text-gray-500">
                         Room {order.room_id} • {formatDate(order.created_at)}
@@ -194,11 +200,18 @@ export default function OrdersPage() {
                   {/* Order Items */}
                   <div className="space-y-3">
                     {order.items.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                      <div
+                        key={index}
+                        className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
+                      >
                         <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">{item.name}</h4>
+                          <h4 className="font-medium text-gray-900">
+                            {item.name}
+                          </h4>
                           {item.note && (
-                            <p className="text-sm text-gray-500 italic">Note: {item.note}</p>
+                            <p className="text-sm text-gray-500 italic">
+                              Note: {item.note}
+                            </p>
                           )}
                         </div>
                         <div className="text-right">

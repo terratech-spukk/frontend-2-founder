@@ -5,6 +5,7 @@ This directory contains modular components for the admin dashboard functionality
 ## Components
 
 ### OrderManagement
+
 - **File**: `OrderManagement.tsx`
 - **Purpose**: Manages food orders with filtering, searching, and status updates
 - **Features**:
@@ -14,6 +15,7 @@ This directory contains modular components for the admin dashboard functionality
   - Order details display
 
 ### HotelRoomManagement
+
 - **File**: `HotelRoomManagement.tsx`
 - **Purpose**: Manages hotel room reservations and operations
 - **Features**:
@@ -24,6 +26,7 @@ This directory contains modular components for the admin dashboard functionality
   - Reservation cancellation
 
 ### BookingAnalytics
+
 - **File**: `BookingAnalytics.tsx`
 - **Purpose**: Provides analytics and insights for booking data
 - **Features**:
@@ -34,6 +37,7 @@ This directory contains modular components for the admin dashboard functionality
   - Date range filtering
 
 ### BookingList
+
 - **File**: `BookingList.tsx`
 - **Purpose**: Displays a detailed list of all bookings
 - **Features**:
@@ -43,6 +47,7 @@ This directory contains modular components for the admin dashboard functionality
   - Guest information
 
 ### RoomCard
+
 - **File**: `RoomCard.tsx`
 - **Purpose**: Individual room display card with actions
 - **Features**:
@@ -52,6 +57,7 @@ This directory contains modular components for the admin dashboard functionality
   - Guest information
 
 ### QRCodeModal
+
 - **File**: `QRCodeModal.tsx`
 - **Purpose**: Modal for displaying QR codes and credentials
 - **Features**:
@@ -60,6 +66,7 @@ This directory contains modular components for the admin dashboard functionality
   - Auto-login URL
 
 ### ReservationModal
+
 - **File**: `ReservationModal.tsx`
 - **Purpose**: Modal for creating room reservations
 - **Features**:
@@ -70,13 +77,15 @@ This directory contains modular components for the admin dashboard functionality
 ## Usage
 
 ### In Dashboard Page
+
 ```tsx
 import { OrderManagement } from "@/components/dashboard";
 
-<OrderManagement onError={handleError} />
+<OrderManagement onError={handleError} />;
 ```
 
 ### In Activity Page
+
 ```tsx
 import { HotelRoomManagement, BookingAnalytics, BookingList } from "@/components/dashboard";
 
@@ -91,7 +100,7 @@ All components accept an optional `onError` prop for error handling:
 
 ```tsx
 interface ComponentProps {
-    onError?: (error: string) => void;
+  onError?: (error: string) => void;
 }
 ```
 

@@ -1,5 +1,10 @@
 import HotelListPage from "@/components/hotel/hotelList";
-import { OrderOverview, IncomeAnalytics, PopularMenuAnalytics, OrderDataProvider } from "@/components/dashboard";
+import {
+  OrderOverview,
+  IncomeAnalytics,
+  PopularMenuAnalytics,
+  OrderDataProvider,
+} from "@/components/dashboard";
 
 export default function HotelPage() {
   return (

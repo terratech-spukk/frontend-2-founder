@@ -8,21 +8,30 @@ import Image from "next/image";
 
 interface RoomCardProps {
   room: Room;
-  onReserve?: (roomId: number, guestData: { full_name: string; phone_number: string }) => void;
+  onReserve?: (
+    roomId: number,
+    guestData: { full_name: string; phone_number: string },
+  ) => void;
   onCancel?: (roomId: number) => void;
   onShowQR?: (roomId: number) => void;
   onCheckin?: (roomId: number) => void;
   onCheckout?: (roomId: number) => void;
 }
 
-export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onCheckout }: RoomCardProps) {
+export function RoomCard({
+  room,
+  onReserve,
+  onCancel,
+  onShowQR,
+  onCheckin,
+  onCheckout,
+}: RoomCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showQRPopup, setShowQRPopup] = useState(false);
 
   const handleReserveClick = () => {
     setIsModalOpen(true);
   };
-
 
   const handleShowQRClick = () => {
     if (onShowQR) {
@@ -41,7 +50,10 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
     setIsModalOpen(false);
   };
 
-  const handleConfirmReservation = (roomNumber: number, guestData: { full_name: string; phone_number: string }) => {
+  const handleConfirmReservation = (
+    roomNumber: number,
+    guestData: { full_name: string; phone_number: string },
+  ) => {
     if (onReserve) {
       onReserve(roomNumber, guestData);
     }
@@ -82,9 +94,9 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('th-TH', {
-      style: 'currency',
-      currency: 'THB',
+    return new Intl.NumberFormat("th-TH", {
+      style: "currency",
+      currency: "THB",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -98,7 +110,9 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
           </h3>
           <p className="text-gray-600 mt-1">{room.description}</p>
         </div>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(room.status)}`}>
+        <span
+          className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(room.status)}`}
+        >
           {getStatusText(room.status)}
         </span>
       </div>
@@ -115,9 +129,13 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-center">
             <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-            <span className="text-sm font-medium text-blue-800">Current Guest:</span>
+            <span className="text-sm font-medium text-blue-800">
+              Current Guest:
+            </span>
           </div>
-          <p className="text-blue-700 font-semibold mt-1">{room.current_guest}</p>
+          <p className="text-blue-700 font-semibold mt-1">
+            {room.current_guest}
+          </p>
         </div>
       )}
 
@@ -125,7 +143,9 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
         <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
           <div className="flex items-center">
             <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
-            <span className="text-sm font-medium text-yellow-800">Reserved</span>
+            <span className="text-sm font-medium text-yellow-800">
+              Reserved
+            </span>
           </div>
           <p className="text-yellow-700 text-sm mt-1">No guest assigned yet</p>
         </div>
@@ -140,7 +160,7 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
             Reserve
           </button>
         )}
-        
+
         {room.status === "reserve" && (
           <div className="flex gap-2 w-full">
             {onShowQR && (
@@ -169,7 +189,7 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
             )}
           </div>
         )}
-        
+
         {room.status === "checkin" && (
           <div className="flex gap-2 w-full">
             {onShowQR && (
@@ -190,7 +210,7 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
             )}
           </div>
         )}
-        
+
         {room.status === "unavailable" && (
           <button
             disabled
@@ -226,9 +246,9 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
 
             {room.qrcode_base64 ? (
               <div className="text-center">
-                <Image 
-                  src={room.qrcode_base64 || ''} 
-                  alt="QR Code" 
+                <Image
+                  src={room.qrcode_base64 || ""}
+                  alt="QR Code"
                   className="w-48 h-48 mx-auto mb-4 object-contain"
                   width={200}
                   height={200}
@@ -238,12 +258,24 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
                 </p>
                 {room.qr_code_data && (
                   <div className="text-xs text-gray-500">
-                    <p><strong>Username:</strong> {JSON.parse(room.qr_code_data).username}</p>
-                    <p><strong>Password:</strong> {JSON.parse(room.qr_code_data).password}</p>
+                    <p>
+                      <strong>Username:</strong>{" "}
+                      {JSON.parse(room.qr_code_data).username}
+                    </p>
+                    <p>
+                      <strong>Password:</strong>{" "}
+                      {JSON.parse(room.qr_code_data).password}
+                    </p>
                     {JSON.parse(room.qr_code_data).full_name && (
                       <>
-                        <p><strong>Name:</strong> {JSON.parse(room.qr_code_data).full_name}</p>
-                        <p><strong>Phone:</strong> {JSON.parse(room.qr_code_data).phone_number}</p>
+                        <p>
+                          <strong>Name:</strong>{" "}
+                          {JSON.parse(room.qr_code_data).full_name}
+                        </p>
+                        <p>
+                          <strong>Phone:</strong>{" "}
+                          {JSON.parse(room.qr_code_data).phone_number}
+                        </p>
                       </>
                     )}
                   </div>
@@ -253,7 +285,7 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
               <div className="text-center">
                 <div className="bg-white p-4 rounded-lg border-2 border-gray-200 inline-block mb-4">
                   <QRCodeSVG
-                    value={`${window.location.origin}/login/qrcode?loginname=${encodeURIComponent(room.current_guest || '')}&password=123`}
+                    value={`${window.location.origin}/login/qrcode?loginname=${encodeURIComponent(room.current_guest || "")}&password=123`}
                     size={150}
                     level="M"
                     includeMargin={true}
@@ -263,8 +295,12 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
                   Scan this QR code to auto-login
                 </p>
                 <div className="text-xs text-gray-500">
-                  <p><strong>Username:</strong> {room.current_guest}</p>
-                  <p><strong>Password:</strong> 123</p>
+                  <p>
+                    <strong>Username:</strong> {room.current_guest}
+                  </p>
+                  <p>
+                    <strong>Password:</strong> 123
+                  </p>
                 </div>
               </div>
             )}
@@ -278,9 +314,9 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
               </button>
               <button
                 onClick={() => {
-                  const url = room.qr_code_data 
-                    ? JSON.parse(room.qr_code_data).autoLoginUrl 
-                    : `${window.location.origin}/login/qrcode?loginname=${encodeURIComponent(room.current_guest || '')}&password=123`;
+                  const url = room.qr_code_data
+                    ? JSON.parse(room.qr_code_data).autoLoginUrl
+                    : `${window.location.origin}/login/qrcode?loginname=${encodeURIComponent(room.current_guest || "")}&password=123`;
                   navigator.clipboard.writeText(url);
                 }}
                 className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"

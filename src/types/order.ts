@@ -10,14 +10,14 @@ export interface OrderItem {
 export interface Order {
   id: string;
   room_id: number;
-  status: 'pending' | 'cooking' | 'serve';
+  status: "pending" | "cooking" | "serve";
   items: OrderItem[];
   total_amount: number;
   created_at: string;
   created_by: string;
 }
 
-export type OrderStatus = 'pending' | 'cooking' | 'serve';
+export type OrderStatus = "pending" | "cooking" | "serve";
 
 export interface OrderStatusUpdate {
   orderId: string;

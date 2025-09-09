@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, createContext, useContext, ReactNode } from "react";
+import React, {
+  useState,
+  useEffect,
+  createContext,
+  useContext,
+  ReactNode,
+} from "react";
 
 export interface User {
   id: string;
@@ -19,7 +25,9 @@ export interface SessionContextType {
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
-export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const SessionProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,12 +68,12 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const checkTokenExpiration = () => {
     if (!token) return false;
-    
+
     try {
       // Decode JWT token to check expiration
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(token.split(".")[1]));
       const currentTime = Math.floor(Date.now() / 1000);
-      
+
       if (payload.exp && payload.exp < currentTime) {
         // Token is expired
         logout();
@@ -80,7 +88,9 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
   };
 
   return (
-    <SessionContext.Provider value={{ user, token, isLoading, login, logout, checkTokenExpiration }}>
+    <SessionContext.Provider
+      value={{ user, token, isLoading, login, logout, checkTokenExpiration }}
+    >
       {children}
     </SessionContext.Provider>
   );

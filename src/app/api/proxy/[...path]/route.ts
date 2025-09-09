@@ -4,7 +4,7 @@ import { API_BASE } from "../../base";
 // Shared handler for all HTTP methods
 async function handleRequest(
   req: NextRequest,
-  context: { params: Promise<{ path: string[] }> }
+  context: { params: Promise<{ path: string[] }> },
 ) {
   const params = await context.params;
 

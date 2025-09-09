@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { api } from '@/lib/axios';
-import { MenuItem } from '@/types/menu';
-import { categories } from '@/data/food_categories';
-import Image from 'next/image';
-import { useSession } from '@/components/SessionProvider';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { api } from "@/lib/axios";
+import { MenuItem } from "@/types/menu";
+import { categories } from "@/data/food_categories";
+import Image from "next/image";
+import { useSession } from "@/components/SessionProvider";
+import { useRouter } from "next/navigation";
 
 interface FoodMenu extends MenuItem {
   category_name?: string;
@@ -28,40 +28,40 @@ export default function FoodEditPage() {
 
   useEffect(() => {
     if (!isLoading) {
-        // If user is not logged in, redirect to login
-        if (!user) {
-            router.push("/login");
-            return;
-        }
-        
-        // If user is not admin, redirect to menu
-        if (user.role !== "admin") {
-            router.push("/menu");
-            return;
-        }
+      // If user is not logged in, redirect to login
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      // If user is not admin, redirect to menu
+      if (user.role !== "admin") {
+        router.push("/menu");
+        return;
+      }
     }
-}, [user, isLoading, router]);
+  }, [user, isLoading, router]);
 
   const fetchFoodMenus = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get<FoodMenu[]>('/food-menus/');
+      const response = await api.get<FoodMenu[]>("/food-menus/");
       const menus = response.data || [];
-      
+
       // Map category names
-      const menusWithCategoryNames = menus.map(menu => {
-        const category = categories.find(cat => cat.id === menu.category_id);
+      const menusWithCategoryNames = menus.map((menu) => {
+        const category = categories.find((cat) => cat.id === menu.category_id);
         return {
           ...menu,
-          category_name: category ? category.name : 'Unknown Category'
+          category_name: category ? category.name : "Unknown Category",
         };
       });
-      
+
       setFoodMenus(menusWithCategoryNames);
     } catch (err) {
-      console.error('Error fetching food menus:', err);
-      setError('Failed to fetch food menus');
+      console.error("Error fetching food menus:", err);
+      setError("Failed to fetch food menus");
     } finally {
       setLoading(false);
     }
@@ -84,7 +84,7 @@ export default function FoodEditPage() {
       if (isAdding) {
         // Remove the ID from the request body - let the backend auto-generate it
         const { id, ...itemWithoutId } = updatedItem;
-        await api.post('/food-menus/', itemWithoutId);
+        await api.post("/food-menus/", itemWithoutId);
       } else {
         await api.patch(`/food-menus/${updatedItem.id}`, updatedItem);
       }
@@ -93,16 +93,23 @@ export default function FoodEditPage() {
       setIsAdding(false);
       setEditingItem(null);
     } catch (err: unknown) {
-      console.error('Error saving food menu:', err);
-      
-      const error = err as { response?: { status?: number; data?: { message?: string } }; message?: string };
-      
+      console.error("Error saving food menu:", err);
+
+      const error = err as {
+        response?: { status?: number; data?: { message?: string } };
+        message?: string;
+      };
+
       if (isAdding && error?.response?.status === 404) {
-        setError('The backend API does not support creating new food items. Please contact the administrator to add new food items through the backend system.');
+        setError(
+          "The backend API does not support creating new food items. Please contact the administrator to add new food items through the backend system.",
+        );
       } else {
-        setError(`Failed to ${isAdding ? 'create' : 'update'} food menu: ${error?.response?.data?.message || error?.message || 'Unknown error'}`);
+        setError(
+          `Failed to ${isAdding ? "create" : "update"} food menu: ${error?.response?.data?.message || error?.message || "Unknown error"}`,
+        );
       }
-      
+
       // Reset the adding state on error
       if (isAdding) {
         setIsAdding(false);
@@ -133,7 +140,7 @@ export default function FoodEditPage() {
         <div className="text-center">
           <div className="text-red-600 text-xl mb-4">Error</div>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button 
+          <button
             onClick={fetchFoodMenus}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
@@ -148,7 +155,9 @@ export default function FoodEditPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Food Menu Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Food Menu Management
+          </h1>
           <p className="mt-2 text-gray-600">Edit and manage food menu items</p>
         </div>
 
@@ -162,17 +171,17 @@ export default function FoodEditPage() {
         ) : isAdding ? (
           <FoodEditForm
             item={{
-              id: '',
-              name: '',
-              name_en: '',
-              category_id: categories[0]?.id || '',
+              id: "",
+              name: "",
+              name_en: "",
+              category_id: categories[0]?.id || "",
               price: 0,
-              description: '',
-              image: '',
+              description: "",
+              image: "",
               spice_level: 0,
               is_popular: false,
               ingredients: [],
-              allergens: []
+              allergens: [],
             }}
             onSave={handleSave}
             onCancel={handleCancel}
@@ -244,24 +253,30 @@ function FoodMenuList({ items, onEdit, onAdd }: FoodMenuListProps) {
                       />
                     )}
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                      <div className="text-sm text-gray-500">{item.name_en}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {item.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {item.name_en}
+                      </div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.category_name || 'N/A'}
+                  {item.category_name || "N/A"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   ฿{item.price.toFixed(2)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    item.is_popular 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {item.is_popular ? 'Yes' : 'No'}
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      item.is_popular
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {item.is_popular ? "Yes" : "No"}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -296,15 +311,18 @@ function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
     onSave(formData);
   };
 
-  const handleChange = (field: keyof FoodMenu, value: FoodMenu[keyof FoodMenu]) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleChange = (
+    field: keyof FoodMenu,
+    value: FoodMenu[keyof FoodMenu],
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
     <div className="bg-white shadow rounded-lg">
       <div className="px-6 py-4 border-b border-gray-200">
         <h2 className="text-lg font-medium text-gray-900">
-          {isAdding ? 'Add New Food Menu Item' : 'Edit Food Menu Item'}
+          {isAdding ? "Add New Food Menu Item" : "Edit Food Menu Item"}
         </h2>
       </div>
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -316,7 +334,7 @@ function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
+              onChange={(e) => handleChange("name", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -327,7 +345,7 @@ function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
             <input
               type="text"
               value={formData.name_en}
-              onChange={(e) => handleChange('name_en', e.target.value)}
+              onChange={(e) => handleChange("name_en", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -339,7 +357,9 @@ function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
               type="number"
               step="0.01"
               value={formData.price}
-              onChange={(e) => handleChange('price', parseFloat(e.target.value))}
+              onChange={(e) =>
+                handleChange("price", parseFloat(e.target.value))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -349,10 +369,10 @@ function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
             </label>
             <select
               value={formData.category_id}
-              onChange={(e) => handleChange('category_id', e.target.value)}
+              onChange={(e) => handleChange("category_id", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {categories.map(category => (
+              {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name} ({category.name_en})
                 </option>
@@ -365,12 +385,14 @@ function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
             </label>
             <select
               value={formData.spice_level}
-              onChange={(e) => handleChange('spice_level', parseInt(e.target.value))}
+              onChange={(e) =>
+                handleChange("spice_level", parseInt(e.target.value))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {[0, 1, 2, 3, 4, 5].map(level => (
+              {[0, 1, 2, 3, 4, 5].map((level) => (
                 <option key={level} value={level}>
-                  {level} - {level === 0 ? 'No spice' : '🌶️'.repeat(level)}
+                  {level} - {level === 0 ? "No spice" : "🌶️".repeat(level)}
                 </option>
               ))}
             </select>
@@ -382,7 +404,7 @@ function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
             <input
               type="url"
               value={formData.image}
-              onChange={(e) => handleChange('image', e.target.value)}
+              onChange={(e) => handleChange("image", e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -391,22 +413,25 @@ function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
               type="checkbox"
               id="is_popular"
               checked={formData.is_popular}
-              onChange={(e) => handleChange('is_popular', e.target.checked)}
+              onChange={(e) => handleChange("is_popular", e.target.checked)}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <label htmlFor="is_popular" className="ml-2 block text-sm text-gray-700">
+            <label
+              htmlFor="is_popular"
+              className="ml-2 block text-sm text-gray-700"
+            >
               Popular Item
             </label>
           </div>
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Description
           </label>
           <textarea
             value={formData.description}
-            onChange={(e) => handleChange('description', e.target.value)}
+            onChange={(e) => handleChange("description", e.target.value)}
             rows={3}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -418,8 +443,13 @@ function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
           </label>
           <input
             type="text"
-            value={formData.ingredients.join(', ')}
-            onChange={(e) => handleChange('ingredients', e.target.value.split(',').map(i => i.trim()))}
+            value={formData.ingredients.join(", ")}
+            onChange={(e) =>
+              handleChange(
+                "ingredients",
+                e.target.value.split(",").map((i) => i.trim()),
+              )
+            }
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -430,8 +460,13 @@ function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
           </label>
           <input
             type="text"
-            value={formData.allergens.join(', ')}
-            onChange={(e) => handleChange('allergens', e.target.value.split(',').map(a => a.trim()))}
+            value={formData.allergens.join(", ")}
+            onChange={(e) =>
+              handleChange(
+                "allergens",
+                e.target.value.split(",").map((a) => a.trim()),
+              )
+            }
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -448,7 +483,7 @@ function FoodEditForm({ item, onSave, onCancel, isAdding }: FoodEditFormProps) {
             type="submit"
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
-            {isAdding ? 'Add Food Item' : 'Save Changes'}
+            {isAdding ? "Add Food Item" : "Save Changes"}
           </button>
         </div>
       </form>

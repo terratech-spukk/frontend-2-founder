@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Cart, CartItem, CartContextType } from '@/types/cart';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { Cart, CartItem, CartContextType } from "@/types/cart";
 import {
   getCartFromStorage,
   saveCartToStorage,
@@ -10,14 +10,14 @@ import {
   updateItemQuantity,
   clearCart as clearCartUtil,
   getItemQuantity,
-} from '@/lib/cart-utils';
+} from "@/lib/cart-utils";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const useCart = () => {
   const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 };
@@ -34,16 +34,16 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     saveCartToStorage(cart);
   }, [cart]);
 
-  const addToCart = (item: Omit<CartItem, 'quantity'>) => {
-    setCart(prevCart => addItemToCart(prevCart, item));
+  const addToCart = (item: Omit<CartItem, "quantity">) => {
+    setCart((prevCart) => addItemToCart(prevCart, item));
   };
 
   const removeFromCart = (itemId: string) => {
-    setCart(prevCart => removeItemFromCart(prevCart, itemId));
+    setCart((prevCart) => removeItemFromCart(prevCart, itemId));
   };
 
   const updateQuantity = (itemId: string, quantity: number) => {
-    setCart(prevCart => updateItemQuantity(prevCart, itemId, quantity));
+    setCart((prevCart) => updateItemQuantity(prevCart, itemId, quantity));
   };
 
   const clearCart = () => {
@@ -63,9 +63,5 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     getItemQuantity: getItemQuantityInCart,
   };
 
-  return (
-    <CartContext.Provider value={value}>
-      {children}
-    </CartContext.Provider>
-  );
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { API_BASE } from '../../../base';
-import { OrderStatus } from '@/types/order';
+import { NextRequest, NextResponse } from "next/server";
+import { API_BASE } from "../../../base";
+import { OrderStatus } from "@/types/order";
 
 interface OrderStatusUpdate {
   orderId: string;
@@ -15,19 +15,16 @@ export async function PATCH(request: NextRequest) {
       role: request.headers.get("x-user-role"),
       room_id: request.headers.get("x-user-room_id"),
     };
-    
+
     if (!user.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if user is admin
-    if (user.role !== 'admin') {
+    if (user.role !== "admin") {
       return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
-        { status: 403 }
+        { error: "Forbidden - Admin access required" },
+        { status: 403 },
       );
     }
 
@@ -37,41 +34,41 @@ export async function PATCH(request: NextRequest) {
 
     if (!orderId || !status) {
       return NextResponse.json(
-        { error: 'Order ID and status are required' },
-        { status: 400 }
+        { error: "Order ID and status are required" },
+        { status: 400 },
       );
     }
 
-    if (!['pending', 'cooking', 'serve'].includes(status)) {
+    if (!["pending", "cooking", "serve"].includes(status)) {
       return NextResponse.json(
-        { error: 'Invalid status. Must be pending, cooking, or serve' },
-        { status: 400 }
+        { error: "Invalid status. Must be pending, cooking, or serve" },
+        { status: 400 },
       );
     }
 
     // Update order status via food-orders API
     const response = await fetch(`${API_BASE}/food-orders/${orderId}/status`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers: {
-        'Content-Type': 'application/json',
-        'x-user-id': user.id,
-        'x-user-role': user.role || 'admin',
-        'x-user-room_id': user.room_id || '495',
+        "Content-Type": "application/json",
+        "x-user-id": user.id,
+        "x-user-role": user.role || "admin",
+        "x-user-room_id": user.room_id || "495",
       },
       body: JSON.stringify({ status }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Food orders API error:', response.status, errorText);
-      
+      console.error("Food orders API error:", response.status, errorText);
+
       return NextResponse.json(
-        { 
-          error: 'Failed to update order status',
+        {
+          error: "Failed to update order status",
           details: errorText,
-          status: response.status 
+          status: response.status,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -83,16 +80,15 @@ export async function PATCH(request: NextRequest) {
       status,
       response: result,
     });
-
   } catch (error) {
-    console.error('Order status update error:', error);
-    
+    console.error("Order status update error:", error);
+
     return NextResponse.json(
-      { 
-        error: 'Internal server error',
-        details: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

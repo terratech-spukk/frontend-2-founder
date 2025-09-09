@@ -25,11 +25,11 @@ interface QRCodeModalProps {
   roomNumber: number;
 }
 
-export function QRCodeModal({ 
-  isOpen, 
-  onClose, 
-  credentials, 
-  roomNumber 
+export function QRCodeModal({
+  isOpen,
+  onClose,
+  credentials,
+  roomNumber,
 }: QRCodeModalProps) {
   const [copied, setCopied] = useState(false);
 
@@ -39,7 +39,7 @@ export function QRCodeModal({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy URL:', err);
+      console.error("Failed to copy URL:", err);
     }
   };
 
@@ -50,7 +50,7 @@ export function QRCodeModal({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy credentials:', err);
+      console.error("Failed to copy credentials:", err);
     }
   };
 
@@ -74,12 +74,14 @@ export function QRCodeModal({
         <div className="grid md:grid-cols-2 gap-8">
           {/* QR Code Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800">QR Code Login</h3>
+            <h3 className="text-lg font-semibold text-gray-800">
+              QR Code Login
+            </h3>
             <div className="bg-white p-4 rounded-lg border-2 border-gray-200 inline-block">
               {credentials.qrCodeData?.qrCodeImage ? (
-                <Image 
-                  src={credentials.qrCodeData.qrCodeImage || ''} 
-                  alt="QR Code" 
+                <Image
+                  src={credentials.qrCodeData.qrCodeImage || ""}
+                  alt="QR Code"
                   className="w-48 h-48 object-contain"
                   width={200}
                   height={200}
@@ -96,7 +98,7 @@ export function QRCodeModal({
             <p className="text-sm text-gray-600">
               Scan this QR code with a mobile device to auto-login
             </p>
-            
+
             {/* Copy URL Button */}
             <button
               onClick={handleCopyUrl}
@@ -108,8 +110,10 @@ export function QRCodeModal({
 
           {/* Credentials Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800">Login Credentials</h3>
-            
+            <h3 className="text-lg font-semibold text-gray-800">
+              Login Credentials
+            </h3>
+
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -123,7 +127,9 @@ export function QRCodeModal({
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 font-mono text-sm"
                   />
                   <button
-                    onClick={() => navigator.clipboard.writeText(credentials.username)}
+                    onClick={() =>
+                      navigator.clipboard.writeText(credentials.username)
+                    }
                     className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
                   >
                     Copy
@@ -143,7 +149,9 @@ export function QRCodeModal({
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 font-mono text-sm"
                   />
                   <button
-                    onClick={() => navigator.clipboard.writeText(credentials.password)}
+                    onClick={() =>
+                      navigator.clipboard.writeText(credentials.password)
+                    }
                     className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
                   >
                     Copy
@@ -163,18 +171,29 @@ export function QRCodeModal({
             {/* Guest Information */}
             {credentials.qrCodeData?.full_name && (
               <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <h4 className="font-semibold text-green-800 mb-2">Guest Information:</h4>
+                <h4 className="font-semibold text-green-800 mb-2">
+                  Guest Information:
+                </h4>
                 <div className="text-sm text-green-700 space-y-1">
-                  <p><strong>Name:</strong> {credentials.qrCodeData.full_name}</p>
-                  <p><strong>Phone:</strong> {credentials.qrCodeData.phone_number}</p>
-                  <p><strong>Room:</strong> {roomNumber}</p>
+                  <p>
+                    <strong>Name:</strong> {credentials.qrCodeData.full_name}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong>{" "}
+                    {credentials.qrCodeData.phone_number}
+                  </p>
+                  <p>
+                    <strong>Room:</strong> {roomNumber}
+                  </p>
                 </div>
               </div>
             )}
 
             {/* Instructions */}
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="font-semibold text-blue-800 mb-2">Instructions for Guest:</h4>
+              <h4 className="font-semibold text-blue-800 mb-2">
+                Instructions for Guest:
+              </h4>
               <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
                 <li>Scan the QR code with your mobile device</li>
                 <li>Or visit the login URL manually</li>

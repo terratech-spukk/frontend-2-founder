@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { MenuItem } from '@/types/menu';
-import { useCart } from '@/contexts/CartContext';
+import { useState } from "react";
+import { MenuItem } from "@/types/menu";
+import { useCart } from "@/contexts/CartContext";
 
 interface AddToCartModalProps {
   isOpen: boolean;
@@ -12,15 +12,15 @@ interface AddToCartModalProps {
   onQuantityChange: (quantity: number) => void;
 }
 
-export const AddToCartModal = ({ 
-  isOpen, 
-  onClose, 
-  menuItem, 
-  quantity, 
-  onQuantityChange 
+export const AddToCartModal = ({
+  isOpen,
+  onClose,
+  menuItem,
+  quantity,
+  onQuantityChange,
 }: AddToCartModalProps) => {
   const { addToCart } = useCart();
-  const [note, setNote] = useState('');
+  const [note, setNote] = useState("");
 
   if (!isOpen || !menuItem) return null;
 
@@ -41,14 +41,14 @@ export const AddToCartModal = ({
         note: note.trim() || undefined, // Add note to cart item
       });
     }
-    
+
     // Reset form and close modal
-    setNote('');
+    setNote("");
     onClose();
   };
 
   const handleClose = () => {
-    setNote('');
+    setNote("");
     onClose();
   };
 
@@ -62,8 +62,18 @@ export const AddToCartModal = ({
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -78,7 +88,9 @@ export const AddToCartModal = ({
             <div className="flex-1">
               <h4 className="font-medium text-gray-900">{menuItem.name}</h4>
               <p className="text-sm text-gray-500">{menuItem.name_en}</p>
-              <p className="text-lg font-semibold text-orange-600">฿{menuItem.price}</p>
+              <p className="text-lg font-semibold text-orange-600">
+                ฿{menuItem.price}
+              </p>
             </div>
           </div>
 
@@ -127,9 +139,11 @@ export const AddToCartModal = ({
           {/* Allergens Warning */}
           {menuItem.allergens.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <h5 className="text-sm font-medium text-red-800 mb-1">Allergen Information</h5>
+              <h5 className="text-sm font-medium text-red-800 mb-1">
+                Allergen Information
+              </h5>
               <p className="text-xs text-red-600">
-                Contains: {menuItem.allergens.join(', ')}
+                Contains: {menuItem.allergens.join(", ")}
               </p>
             </div>
           )}

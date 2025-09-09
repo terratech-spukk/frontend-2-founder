@@ -16,37 +16,40 @@ function AutoLoginContent() {
   const loginname = searchParams.get("loginname");
   const password = searchParams.get("password");
 
-  const handleAutoLogin = useCallback(async (username: string, password: string) => {
-    setIsAutoLoggingIn(true);
-    setError("");
+  const handleAutoLogin = useCallback(
+    async (username: string, password: string) => {
+      setIsAutoLoggingIn(true);
+      setError("");
 
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (response.ok && data.success) {
-        // Use session context to store user data
-        login(data.token, data.user);
-        
-        // Redirect to dashboard
-        router.push("/dashboard");
-      } else {
-        setError(data.error || "Auto-login failed");
+        if (response.ok && data.success) {
+          // Use session context to store user data
+          login(data.token, data.user);
+
+          // Redirect to dashboard
+          router.push("/dashboard");
+        } else {
+          setError(data.error || "Auto-login failed");
+          setIsAutoLoggingIn(false);
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Network error. Please try again.");
         setIsAutoLoggingIn(false);
       }
-    } catch (err) {
-      console.error(err);
-      setError("Network error. Please try again.");
-      setIsAutoLoggingIn(false);
-    }
-  }, [login, router]);
+    },
+    [login, router],
+  );
 
   // Auto-login if parameters are present
   useEffect(() => {
@@ -78,7 +81,7 @@ function AutoLoginContent() {
       if (response.ok && data.success) {
         // Use session context to store user data
         login(data.token, data.user);
-        
+
         // Redirect to dashboard
         router.push("/dashboard");
       } else {
@@ -104,12 +107,16 @@ function AutoLoginContent() {
           <div className="text-white text-center w-[400px] max-w-[90vw]">
             <h2 className="text-yellow-400 text-2xl mb-3">TERRATECH</h2>
             <h1 className="text-4xl mb-2">Auto Login</h1>
-            <p className="text-lg mb-8">Login with URL parameters or enter manually</p>
+            <p className="text-lg mb-8">
+              Login with URL parameters or enter manually
+            </p>
 
             {/* Auto-login status */}
             {isAutoLoggingIn && (
               <div className="mb-6 p-4 bg-blue-500/20 rounded-lg border border-blue-400/30">
-                <p className="text-blue-200">Auto-logging in with provided credentials...</p>
+                <p className="text-blue-200">
+                  Auto-logging in with provided credentials...
+                </p>
               </div>
             )}
 
@@ -159,8 +166,8 @@ function AutoLoginContent() {
 
             {/* Back to regular login */}
             <div className="mt-6">
-              <a 
-                href="/login" 
+              <a
+                href="/login"
                 className="text-yellow-300 hover:text-yellow-200 underline text-sm"
               >
                 ← Back to regular login
@@ -175,17 +182,21 @@ function AutoLoginContent() {
 
 export default function AutoLoginPage() {
   return (
-    <Suspense fallback={
-      <div className="flex bg-[url('/bg_hotel.png')] bg-no-repeat bg-cover justify-center items-center h-screen">
-        <div className="bg-[rgba(207,163,73,0.2)] backdrop-blur-md p-16 rounded-2xl shadow-xl text-white">
-          <div className="text-white text-center w-[400px] max-w-[90vw]">
-            <h2 className="text-yellow-400 text-2xl mb-3">TERRATECH</h2>
-            <h1 className="text-4xl mb-2">Loading...</h1>
-            <p className="text-lg">Please wait while we load the login page...</p>
+    <Suspense
+      fallback={
+        <div className="flex bg-[url('/bg_hotel.png')] bg-no-repeat bg-cover justify-center items-center h-screen">
+          <div className="bg-[rgba(207,163,73,0.2)] backdrop-blur-md p-16 rounded-2xl shadow-xl text-white">
+            <div className="text-white text-center w-[400px] max-w-[90vw]">
+              <h2 className="text-yellow-400 text-2xl mb-3">TERRATECH</h2>
+              <h1 className="text-4xl mb-2">Loading...</h1>
+              <p className="text-lg">
+                Please wait while we load the login page...
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <AutoLoginContent />
     </Suspense>
   );

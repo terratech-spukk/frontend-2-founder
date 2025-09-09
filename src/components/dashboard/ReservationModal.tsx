@@ -7,16 +7,19 @@ interface ReservationModalProps {
   room: Room;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (roomNumber: number, guestData: { full_name: string; phone_number: string }) => void;
+  onConfirm: (
+    roomNumber: number,
+    guestData: { full_name: string; phone_number: string },
+  ) => void;
   isLoading?: boolean;
 }
 
-export function ReservationModal({ 
-  room, 
-  isOpen, 
-  onClose, 
-  onConfirm, 
-  isLoading = false 
+export function ReservationModal({
+  room,
+  isOpen,
+  onClose,
+  onConfirm,
+  isLoading = false,
 }: ReservationModalProps) {
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -26,7 +29,7 @@ export function ReservationModal({
     if (fullName.trim() && phoneNumber.trim()) {
       onConfirm(room.room_number, {
         full_name: fullName.trim(),
-        phone_number: phoneNumber.trim()
+        phone_number: phoneNumber.trim(),
       });
     }
   };
@@ -58,17 +61,21 @@ export function ReservationModal({
         <div className="mb-4">
           <p className="text-gray-600 mb-2">{room.description}</p>
           <p className="text-lg font-semibold text-[#cfa349]">
-            {new Intl.NumberFormat('th-TH', {
-              style: 'currency',
-              currency: 'THB',
+            {new Intl.NumberFormat("th-TH", {
+              style: "currency",
+              currency: "THB",
               minimumFractionDigits: 0,
-            }).format(room.price)} per night
+            }).format(room.price)}{" "}
+            per night
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="fullName"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Guest Full Name
             </label>
             <input
@@ -84,7 +91,10 @@ export function ReservationModal({
           </div>
 
           <div className="mb-4">
-            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="phoneNumber"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Phone Number
             </label>
             <input

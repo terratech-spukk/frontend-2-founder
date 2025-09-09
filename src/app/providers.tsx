@@ -1,12 +1,12 @@
 // app/providers.tsx
-'use client'
+"use client";
 
-import {HeroUIProvider} from '@heroui/react'
-import {ToastProvider} from "@heroui/toast";
+import { HeroUIProvider } from "@heroui/react";
+import { ToastProvider } from "@heroui/toast";
 import { SessionProvider } from "@/components/SessionProvider";
 import { CartProvider } from "@/contexts/CartContext";
 
-export function Providers({children}: { children: React.ReactNode }) {
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <HeroUIProvider>
@@ -16,5 +16,5 @@ export function Providers({children}: { children: React.ReactNode }) {
         </CartProvider>
       </HeroUIProvider>
     </SessionProvider>
-  )
+  );
 }

@@ -1,15 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useMemo } from 'react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { MenuItem, ApiResponse } from '@/types/menu';
-import { categories } from '@/data/food_categories';
-import { allergens } from '@/data/food_allergens';
-import { api } from '@/lib/axios';
-import { useCart } from '@/contexts/CartContext';
-import { AddToCartModal } from './AddToCartModal';
-
+import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { MenuItem, ApiResponse } from "@/types/menu";
+import { categories } from "@/data/food_categories";
+import { allergens } from "@/data/food_allergens";
+import { api } from "@/lib/axios";
+import { useCart } from "@/contexts/CartContext";
+import { AddToCartModal } from "./AddToCartModal";
 
 const FoodMenuPage = () => {
   const router = useRouter();
@@ -18,40 +17,53 @@ const FoodMenuPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(1000);
   const [showPopularOnly, setShowPopularOnly] = useState<boolean>(false);
-  const [selectedSpiceLevels, setSelectedSpiceLevels] = useState<Set<number>>(new Set());
-  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
-  const [selectedAllergens, setSelectedAllergens] = useState<Set<string>>(new Set());
+  const [selectedSpiceLevels, setSelectedSpiceLevels] = useState<Set<number>>(
+    new Set(),
+  );
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
+    new Set(),
+  );
+  const [selectedAllergens, setSelectedAllergens] = useState<Set<string>>(
+    new Set(),
+  );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  
+
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
+  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(
+    null,
+  );
   const [modalQuantity, setModalQuantity] = useState(1);
 
   useEffect(() => {
     const fetchMenus = async (): Promise<void> => {
       try {
         setLoading(true);
-        const response = await api.get<ApiResponse<MenuItem[]> | MenuItem[]>(`/food-menus/`);
-        
+        const response = await api.get<ApiResponse<MenuItem[]> | MenuItem[]>(
+          `/food-menus/`,
+        );
+
         // Handle both possible response structures
-        const menuData = Array.isArray(response.data) ? response.data : response.data.data;
+        const menuData = Array.isArray(response.data)
+          ? response.data
+          : response.data.data;
         setMenus(menuData);
         setError(null);
-        
+
         // Set initial price range based on actual data
         if (menuData.length > 0) {
-          const prices = menuData.map(menu => menu.price);
+          const prices = menuData.map((menu) => menu.price);
           setMaxPrice(Math.max(...prices));
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch menu data';
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to fetch menu data";
         setError(errorMessage);
-        console.error('Error fetching menus:', err);
+        console.error("Error fetching menus:", err);
       } finally {
         setLoading(false);
       }
@@ -61,50 +73,80 @@ const FoodMenuPage = () => {
   }, []);
 
   const getSpiceLevel = (level: number): string => {
-    return '🌶️'.repeat(level);
+    return "🌶️".repeat(level);
   };
 
   const handleImageError = (imageUrl: string): void => {
-    setFailedImages(prev => new Set(prev).add(imageUrl));
+    setFailedImages((prev) => new Set(prev).add(imageUrl));
   };
 
   const getImageSrc = (menu: MenuItem): string => {
-    if (!menu.image || menu.image.trim() === '' || failedImages.has(menu.image)) {
-      return 'https://placehold.co/1200x768';
+    if (
+      !menu.image ||
+      menu.image.trim() === "" ||
+      failedImages.has(menu.image)
+    ) {
+      return "https://placehold.co/1200x768";
     }
     return menu.image;
   };
 
   // Filter menus based on search query, price range, popular filter, spice level, and category - optimized for instant updates
   const filteredMenus = useMemo(() => {
-    return menus.filter(menu => {
-      const matchesSearch = searchQuery === '' || 
+    return menus.filter((menu) => {
+      const matchesSearch =
+        searchQuery === "" ||
         menu.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         menu.name_en.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesPrice = menu.price >= minPrice && menu.price <= maxPrice;
       const matchesPopular = !showPopularOnly || menu.is_popular;
-      const matchesSpice = selectedSpiceLevels.size === 0 || selectedSpiceLevels.has(menu.spice_level);
-      const matchesCategory = selectedCategories.size === 0 || selectedCategories.has(menu.category_id);
-      const matchesAllergen = selectedAllergens.size === 0 || !menu.allergens.some(allergen => selectedAllergens.has(allergen));
-      return matchesSearch && matchesPrice && matchesPopular && matchesSpice && matchesCategory && matchesAllergen;
+      const matchesSpice =
+        selectedSpiceLevels.size === 0 ||
+        selectedSpiceLevels.has(menu.spice_level);
+      const matchesCategory =
+        selectedCategories.size === 0 ||
+        selectedCategories.has(menu.category_id);
+      const matchesAllergen =
+        selectedAllergens.size === 0 ||
+        !menu.allergens.some((allergen) => selectedAllergens.has(allergen));
+      return (
+        matchesSearch &&
+        matchesPrice &&
+        matchesPopular &&
+        matchesSpice &&
+        matchesCategory &&
+        matchesAllergen
+      );
     });
-  }, [menus, searchQuery, minPrice, maxPrice, showPopularOnly, selectedSpiceLevels, selectedCategories, selectedAllergens]);
+  }, [
+    menus,
+    searchQuery,
+    minPrice,
+    maxPrice,
+    showPopularOnly,
+    selectedSpiceLevels,
+    selectedCategories,
+    selectedAllergens,
+  ]);
 
   // Calculate price range from actual menu data
-  const priceRange = menus.length > 0 ? {
-    min: Math.min(...menus.map(menu => menu.price)),
-    max: Math.max(...menus.map(menu => menu.price))
-  } : { min: 0, max: 1000 };
+  const priceRange =
+    menus.length > 0
+      ? {
+          min: Math.min(...menus.map((menu) => menu.price)),
+          max: Math.max(...menus.map((menu) => menu.price)),
+        }
+      : { min: 0, max: 1000 };
 
   // Get unique spice levels from menu data
   const availableSpiceLevels = useMemo(() => {
-    const levels = new Set(menus.map(menu => menu.spice_level));
+    const levels = new Set(menus.map((menu) => menu.spice_level));
     return Array.from(levels).sort((a, b) => a - b);
   }, [menus]);
 
   // Handle spice level checkbox changes
   const handleSpiceLevelChange = (level: number, checked: boolean) => {
-    setSelectedSpiceLevels(prev => {
+    setSelectedSpiceLevels((prev) => {
       const newSet = new Set(prev);
       if (checked) {
         newSet.add(level);
@@ -117,7 +159,7 @@ const FoodMenuPage = () => {
 
   // Handle category checkbox changes
   const handleCategoryChange = (categoryId: string, checked: boolean) => {
-    setSelectedCategories(prev => {
+    setSelectedCategories((prev) => {
       const newSet = new Set(prev);
       if (checked) {
         newSet.add(categoryId);
@@ -130,7 +172,7 @@ const FoodMenuPage = () => {
 
   // Handle allergen checkbox changes
   const handleAllergenChange = (allergen: string, checked: boolean) => {
-    setSelectedAllergens(prev => {
+    setSelectedAllergens((prev) => {
       const newSet = new Set(prev);
       if (checked) {
         newSet.add(allergen);
@@ -177,10 +219,12 @@ const FoodMenuPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Error Loading Menu</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Error Loading Menu
+          </h2>
           <p className="text-gray-600">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="mt-4 bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
           >
             Try Again
@@ -192,404 +236,524 @@ const FoodMenuPage = () => {
 
   return (
     <>
-    <div className="min-h-screen z-10 bg-[url('/bg_hotel.png')] bg-no-repeat bg-cover bg-center bg-fixed">
-      {/* Header */}
-      {/* <div className="bg-white shadow-sm border-b">
+      <div className="min-h-screen z-10 bg-[url('/bg_hotel.png')] bg-no-repeat bg-cover bg-center bg-fixed">
+        {/* Header */}
+        {/* <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <h1 className="text-3xl font-bold text-gray-900">Our Menu</h1>
           <p className="mt-2 text-gray-600">เมนูอาหารของเรา</p>
             </div>
           </div> */}
 
-      {/* Filter Toggle Button */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className={`px-6 py-3 rounded-lg transition-colors font-medium flex items-center gap-2 ${
-            searchQuery || showPopularOnly || selectedSpiceLevels.size > 0 || selectedCategories.size > 0 || selectedAllergens.size > 0
-              ? 'bg-orange-600 text-white hover:bg-orange-700' 
-              : 'bg-orange-500 text-white hover:bg-orange-600'
-          }`}
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-          </svg>
-          {isFilterOpen ? 'Hide Filters' : 'Show Filters'}
-          {/* Active filters indicator */}
-          {(searchQuery || showPopularOnly || selectedSpiceLevels.size > 0 || selectedCategories.size > 0 || selectedAllergens.size > 0) && (
-            <span className="bg-white text-orange-600 text-xs px-2 py-1 rounded-full font-bold">
-              {[searchQuery ? 1 : 0, showPopularOnly ? 1 : 0, selectedSpiceLevels.size, selectedCategories.size, selectedAllergens.size].reduce((a, b) => a + b, 0)}
-            </span>
-          )}
-        </button>
-      </div>
+        {/* Filter Toggle Button */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <button
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className={`px-6 py-3 rounded-lg transition-colors font-medium flex items-center gap-2 ${
+              searchQuery ||
+              showPopularOnly ||
+              selectedSpiceLevels.size > 0 ||
+              selectedCategories.size > 0 ||
+              selectedAllergens.size > 0
+                ? "bg-orange-600 text-white hover:bg-orange-700"
+                : "bg-orange-500 text-white hover:bg-orange-600"
+            }`}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+              />
+            </svg>
+            {isFilterOpen ? "Hide Filters" : "Show Filters"}
+            {/* Active filters indicator */}
+            {(searchQuery ||
+              showPopularOnly ||
+              selectedSpiceLevels.size > 0 ||
+              selectedCategories.size > 0 ||
+              selectedAllergens.size > 0) && (
+              <span className="bg-white text-orange-600 text-xs px-2 py-1 rounded-full font-bold">
+                {[
+                  searchQuery ? 1 : 0,
+                  showPopularOnly ? 1 : 0,
+                  selectedSpiceLevels.size,
+                  selectedCategories.size,
+                  selectedAllergens.size,
+                ].reduce((a, b) => a + b, 0)}
+              </span>
+            )}
+          </button>
+        </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="relative">
-          {/* Slide-out Filter Panel */}
-          <div className={`fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-            isFilterOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}>
-            <div className="h-full overflow-y-auto p-6">
-              {/* Filter Header */}
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Filters</h2>
-                <button
-                  onClick={() => setIsFilterOpen(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Filter Content */}
-              <div className="space-y-6">
-                {/* Search Input */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Search / ค้นหา</h3>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="ค้นหาอาหาร... / Search food..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Popular Filter Toggle */}
-                <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-3">Popular Filter</h3>
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          <div className="relative">
+            {/* Slide-out Filter Panel */}
+            <div
+              className={`fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+                isFilterOpen ? "translate-x-0" : "-translate-x-full"
+              }`}
+            >
+              <div className="h-full overflow-y-auto p-6">
+                {/* Filter Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">Filters</h2>
                   <button
-                    onClick={() => setShowPopularOnly(!showPopularOnly)}
-                    className={`flex items-center px-4 py-3 rounded-lg border transition-all duration-200 w-full justify-center ${
-                      showPopularOnly
-                        ? 'bg-orange-500 text-white border-orange-500 shadow-md'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300 hover:bg-orange-50'
-                    }`}
+                    onClick={() => setIsFilterOpen(false)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    <svg 
-                      className={`w-5 h-5 mr-2 ${showPopularOnly ? 'text-white' : 'text-orange-500'}`} 
-                      fill="currentColor" 
-                      viewBox="0 0 20 20"
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
-                    <span className="font-medium">
-                      {showPopularOnly ? 'Show All' : 'Popular Only'}
-                    </span>
-                    <span className="ml-1 text-xs opacity-75">
-                      {showPopularOnly ? 'แสดงทั้งหมด' : 'ยอดนิยมเท่านั้น'}
-                    </span>
                   </button>
                 </div>
-            
-                {/* Price Range */}
-                <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-3">Price Range / ช่วงราคา</h3>
-                  <div className="flex justify-between text-sm text-gray-600 mb-3">
-                    <span>฿{minPrice}</span>
-                    <span>฿{maxPrice}</span>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Min Price / ราคาต่ำสุด</label>
-                      <input
-                        type="number"
-                        min={priceRange.min}
-                        max={priceRange.max}
-                        value={minPrice}
-                        onChange={(e) => {
-                          const newMinPrice = Math.min(Number(e.target.value), maxPrice - 1);
-                          setMinPrice(newMinPrice);
-                        }}
-                        onInput={(e) => {
-                          const newMinPrice = Math.min(Number((e.target as HTMLInputElement).value), maxPrice - 1);
-                          setMinPrice(newMinPrice);
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Max Price / ราคาสูงสุด</label>
-                      <input
-                        type="number"
-                        min={priceRange.min}
-                        max={priceRange.max}
-                        value={maxPrice}
-                        onChange={(e) => {
-                          const newMaxPrice = Math.max(Number(e.target.value), minPrice + 1);
-                          setMaxPrice(newMaxPrice);
-                        }}
-                        onInput={(e) => {
-                          const newMaxPrice = Math.max(Number((e.target as HTMLInputElement).value), minPrice + 1);
-                          setMaxPrice(newMaxPrice);
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              
-                {/* Category Filter */}
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Category / หมวดหมู่</h4>
-                  <div className="space-y-1 max-h-40 overflow-y-auto">
-                    {categories.map(category => (
-                      <label key={category.id} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedCategories.has(category.id)}
-                          onChange={(e) => handleCategoryChange(category.id, e.target.checked)}
-                          className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">
-                          <span className="font-medium">{category.name_en}</span>
-                          <span className="text-gray-500 ml-1">/ {category.name}</span>
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Spice Level Filter */}
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Spice Level / ระดับความเผ็ด</h4>
-                  <div className="space-y-1">
-                    {availableSpiceLevels.map(level => (
-                      <label key={level} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedSpiceLevels.has(level)}
-                          onChange={(e) => handleSpiceLevelChange(level, e.target.checked)}
-                          className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-                        />
-                        <span className="ml-2 text-sm text-gray-700 flex items-center">
-                          {getSpiceLevel(level)} 
-                          <span className="ml-1">
-                            {level === 0 ? 'No Spice / ไม่เผ็ด' : 
-                             level === 1 ? 'Mild / เผ็ดน้อย' :
-                             level === 2 ? 'Medium / เผ็ดปานกลาง' :
-                             level === 3 ? 'Hot / เผ็ดมาก' :
-                             level === 4 ? 'Very Hot / เผ็ดมากๆ' :
-                             `Level ${level} / ระดับ ${level}`}
-                          </span>
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Allergens Filter */}
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Allergens / สารก่อภูมิแพ้</h4>
-                  <div className="space-y-1 max-h-40 overflow-y-auto">
-                    {allergens.map(allergen => (
-                      <label key={allergen} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedAllergens.has(allergen)}
-                          onChange={(e) => handleAllergenChange(allergen, e.target.checked)}
-                          className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-                        />
-                        <span className="ml-2 text-sm text-gray-700">
-                          <span className="font-medium">{allergen}</span>
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Select allergens to exclude from results / เลือกสารก่อภูมิแพ้เพื่อไม่แสดงในผลลัพธ์
-                  </p>
-                </div>
-
-                {/* Reset Filter Button */}
-                <button
-                  onClick={() => {
-                    setSearchQuery('');
-                    setMinPrice(0);
-                    setMaxPrice(priceRange.max);
-                    setShowPopularOnly(false);
-                    setSelectedSpiceLevels(new Set());
-                    setSelectedCategories(new Set());
-                    setSelectedAllergens(new Set());
-                  }}
-                  className="w-full mt-4 px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors"
-                >
-                  Reset Filters / รีเซ็ตตัวกรอง
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Overlay for mobile */}
-          {isFilterOpen && (
-            <div 
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 xl:hidden"
-              onClick={() => setIsFilterOpen(false)}
-            />
-          )}
-
-          {/* Main Content - Menu Grid */}
-          <div className="flex-1 min-w-0">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-6">
-              {filteredMenus.map((menu) => (
-            <div
-              key={menu.id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col cursor-pointer"
-              onClick={() => handleCardClick(menu.id)}
-            >
-              {/* Image */}
-              <div className="relative h-48 w-full">
-                {getImageSrc(menu) && (
-                  <Image
-                    src={getImageSrc(menu)}
-                    alt={menu.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    onError={() => handleImageError(menu.image)}
-                  />
-                )}
-                {menu.is_popular && (
-                  <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                    Popular
-                  </div>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="p-4 flex-1 flex flex-col">
-                {/* Title and Price */}
-                <div className="flex justify-between items-start mb-2">
+                {/* Filter Content */}
+                <div className="space-y-6">
+                  {/* Search Input */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{menu.name}</h3>
-                    <p className="text-sm text-gray-500">{menu.name_en}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xl font-bold text-orange-600">฿{menu.price}</span>
-                  </div>
-                </div>
-
-                {/* Description */}
-                <p className="text-gray-700 text-sm mb-3 line-clamp-2">{menu.description}</p>
-
-                {/* Spice Level */}
-                {menu.spice_level > 0 && (
-                  <div className="flex items-center mb-3">
-                    <span className="text-sm text-gray-600 mr-2">ระดับความเผ็ด:</span>
-                    <span className="text-sm">{getSpiceLevel(menu.spice_level)}</span>
-                  </div>
-                )}
-
-                {/* Ingredients */}
-                <div className="mb-3">
-                  <h4 className="text-sm font-medium text-gray-700 mb-1">ส่วนประกอบ:</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {menu.ingredients.slice(0, 3).map((ingredient, index) => (
-                      <span
-                        key={index}
-                        className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full"
-                      >
-                        {ingredient}
-                      </span>
-                    ))}
-                    {menu.ingredients.length > 3 && (
-                      <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                        +{menu.ingredients.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Allergens */}
-                {menu.allergens.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-red-600 mb-1">ข้อมูลสำหรับผู้แพ้อาหาร:</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {menu.allergens.map((allergen: string, index: number) => (
-                        <span
-                          key={index}
-                          className="inline-block bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full"
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                      Search / ค้นหา
+                    </h3>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg
+                          className="h-5 w-5 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          มีส่วนผสมของ{allergen}
-                        </span>
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                          />
+                        </svg>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="ค้นหาอาหาร... / Search food..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Popular Filter Toggle */}
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-900 mb-3">
+                      Popular Filter
+                    </h3>
+                    <button
+                      onClick={() => setShowPopularOnly(!showPopularOnly)}
+                      className={`flex items-center px-4 py-3 rounded-lg border transition-all duration-200 w-full justify-center ${
+                        showPopularOnly
+                          ? "bg-orange-500 text-white border-orange-500 shadow-md"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-orange-300 hover:bg-orange-50"
+                      }`}
+                    >
+                      <svg
+                        className={`w-5 h-5 mr-2 ${showPopularOnly ? "text-white" : "text-orange-500"}`}
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span className="font-medium">
+                        {showPopularOnly ? "Show All" : "Popular Only"}
+                      </span>
+                      <span className="ml-1 text-xs opacity-75">
+                        {showPopularOnly ? "แสดงทั้งหมด" : "ยอดนิยมเท่านั้น"}
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Price Range */}
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-900 mb-3">
+                      Price Range / ช่วงราคา
+                    </h3>
+                    <div className="flex justify-between text-sm text-gray-600 mb-3">
+                      <span>฿{minPrice}</span>
+                      <span>฿{maxPrice}</span>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Min Price / ราคาต่ำสุด
+                        </label>
+                        <input
+                          type="number"
+                          min={priceRange.min}
+                          max={priceRange.max}
+                          value={minPrice}
+                          onChange={(e) => {
+                            const newMinPrice = Math.min(
+                              Number(e.target.value),
+                              maxPrice - 1,
+                            );
+                            setMinPrice(newMinPrice);
+                          }}
+                          onInput={(e) => {
+                            const newMinPrice = Math.min(
+                              Number((e.target as HTMLInputElement).value),
+                              maxPrice - 1,
+                            );
+                            setMinPrice(newMinPrice);
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Max Price / ราคาสูงสุด
+                        </label>
+                        <input
+                          type="number"
+                          min={priceRange.min}
+                          max={priceRange.max}
+                          value={maxPrice}
+                          onChange={(e) => {
+                            const newMaxPrice = Math.max(
+                              Number(e.target.value),
+                              minPrice + 1,
+                            );
+                            setMaxPrice(newMaxPrice);
+                          }}
+                          onInput={(e) => {
+                            const newMaxPrice = Math.max(
+                              Number((e.target as HTMLInputElement).value),
+                              minPrice + 1,
+                            );
+                            setMaxPrice(newMaxPrice);
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Category Filter */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                      Category / หมวดหมู่
+                    </h4>
+                    <div className="space-y-1 max-h-40 overflow-y-auto">
+                      {categories.map((category) => (
+                        <label key={category.id} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedCategories.has(category.id)}
+                            onChange={(e) =>
+                              handleCategoryChange(
+                                category.id,
+                                e.target.checked,
+                              )
+                            }
+                            className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">
+                            <span className="font-medium">
+                              {category.name_en}
+                            </span>
+                            <span className="text-gray-500 ml-1">
+                              / {category.name}
+                            </span>
+                          </span>
+                        </label>
                       ))}
                     </div>
                   </div>
-                )}
 
-                {/* Add to Cart Button - Sticky to Footer */}
-                <div className="mt-auto pt-4">
-                  <button 
-                    className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors duration-200 font-medium"
-                    onClick={(e) => handleAddToCartClick(e, menu)}
-                  >
-                    {getItemQuantity(menu.id) > 0 
-                      ? `Add to Cart (${getItemQuantity(menu.id)})` 
-                      : 'Add to Cart'
-                    }
-                  </button>
-                </div>
-              </div>
-            </div>
-            ))}
-            </div>
+                  {/* Spice Level Filter */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                      Spice Level / ระดับความเผ็ด
+                    </h4>
+                    <div className="space-y-1">
+                      {availableSpiceLevels.map((level) => (
+                        <label key={level} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedSpiceLevels.has(level)}
+                            onChange={(e) =>
+                              handleSpiceLevelChange(level, e.target.checked)
+                            }
+                            className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                          />
+                          <span className="ml-2 text-sm text-gray-700 flex items-center">
+                            {getSpiceLevel(level)}
+                            <span className="ml-1">
+                              {level === 0
+                                ? "No Spice / ไม่เผ็ด"
+                                : level === 1
+                                  ? "Mild / เผ็ดน้อย"
+                                  : level === 2
+                                    ? "Medium / เผ็ดปานกลาง"
+                                    : level === 3
+                                      ? "Hot / เผ็ดมาก"
+                                      : level === 4
+                                        ? "Very Hot / เผ็ดมากๆ"
+                                        : `Level ${level} / ระดับ ${level}`}
+                            </span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
 
-            {filteredMenus.length === 0 && !loading && (
-              <div className="text-center py-12 bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg">
-                <div className="text-gray-400 text-6xl mb-4">🍽️</div>
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                  {searchQuery || showPopularOnly ? 'No Menu Items Found' : 'No Menu Items Available'}
-                </h3>
-                <p className="text-gray-500">
-                  {searchQuery 
-                    ? `No items found for "${searchQuery}". Try a different search term.`
-                    : showPopularOnly || selectedSpiceLevels.size > 0 || selectedCategories.size > 0 || selectedAllergens.size > 0
-                    ? 'No items found matching your filters. Try adjusting your filters.'
-                    : 'Please check back later for our delicious menu items.'
-                  }
-                </p>
-                {(searchQuery || showPopularOnly || selectedSpiceLevels.size > 0 || selectedCategories.size > 0 || selectedAllergens.size > 0) && (
+                  {/* Allergens Filter */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                      Allergens / สารก่อภูมิแพ้
+                    </h4>
+                    <div className="space-y-1 max-h-40 overflow-y-auto">
+                      {allergens.map((allergen) => (
+                        <label key={allergen} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedAllergens.has(allergen)}
+                            onChange={(e) =>
+                              handleAllergenChange(allergen, e.target.checked)
+                            }
+                            className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">
+                            <span className="font-medium">{allergen}</span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Select allergens to exclude from results /
+                      เลือกสารก่อภูมิแพ้เพื่อไม่แสดงในผลลัพธ์
+                    </p>
+                  </div>
+
+                  {/* Reset Filter Button */}
                   <button
                     onClick={() => {
-                      setSearchQuery('');
+                      setSearchQuery("");
+                      setMinPrice(0);
+                      setMaxPrice(priceRange.max);
                       setShowPopularOnly(false);
                       setSelectedSpiceLevels(new Set());
                       setSelectedCategories(new Set());
                       setSelectedAllergens(new Set());
                     }}
-                    className="mt-4 bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+                    className="w-full mt-4 px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors"
                   >
-                    Clear Filters
+                    Reset Filters / รีเซ็ตตัวกรอง
                   </button>
-                )}
+                </div>
               </div>
+            </div>
+
+            {/* Overlay for mobile */}
+            {isFilterOpen && (
+              <div
+                className="fixed inset-0 bg-black bg-opacity-50 z-40 xl:hidden"
+                onClick={() => setIsFilterOpen(false)}
+              />
             )}
+
+            {/* Main Content - Menu Grid */}
+            <div className="flex-1 min-w-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-6">
+                {filteredMenus.map((menu) => (
+                  <div
+                    key={menu.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col cursor-pointer"
+                    onClick={() => handleCardClick(menu.id)}
+                  >
+                    {/* Image */}
+                    <div className="relative h-48 w-full">
+                      {getImageSrc(menu) && (
+                        <Image
+                          src={getImageSrc(menu)}
+                          alt={menu.name}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          onError={() => handleImageError(menu.image)}
+                        />
+                      )}
+                      {menu.is_popular && (
+                        <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                          Popular
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-4 flex-1 flex flex-col">
+                      {/* Title and Price */}
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {menu.name}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {menu.name_en}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xl font-bold text-orange-600">
+                            ฿{menu.price}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-gray-700 text-sm mb-3 line-clamp-2">
+                        {menu.description}
+                      </p>
+
+                      {/* Spice Level */}
+                      {menu.spice_level > 0 && (
+                        <div className="flex items-center mb-3">
+                          <span className="text-sm text-gray-600 mr-2">
+                            ระดับความเผ็ด:
+                          </span>
+                          <span className="text-sm">
+                            {getSpiceLevel(menu.spice_level)}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Ingredients */}
+                      <div className="mb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">
+                          ส่วนประกอบ:
+                        </h4>
+                        <div className="flex flex-wrap gap-1">
+                          {menu.ingredients
+                            .slice(0, 3)
+                            .map((ingredient, index) => (
+                              <span
+                                key={index}
+                                className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full"
+                              >
+                                {ingredient}
+                              </span>
+                            ))}
+                          {menu.ingredients.length > 3 && (
+                            <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
+                              +{menu.ingredients.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Allergens */}
+                      {menu.allergens.length > 0 && (
+                        <div className="mb-4">
+                          <h4 className="text-sm font-medium text-red-600 mb-1">
+                            ข้อมูลสำหรับผู้แพ้อาหาร:
+                          </h4>
+                          <div className="flex flex-wrap gap-1">
+                            {menu.allergens.map(
+                              (allergen: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="inline-block bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full"
+                                >
+                                  มีส่วนผสมของ{allergen}
+                                </span>
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Add to Cart Button - Sticky to Footer */}
+                      <div className="mt-auto pt-4">
+                        <button
+                          className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors duration-200 font-medium"
+                          onClick={(e) => handleAddToCartClick(e, menu)}
+                        >
+                          {getItemQuantity(menu.id) > 0
+                            ? `Add to Cart (${getItemQuantity(menu.id)})`
+                            : "Add to Cart"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {filteredMenus.length === 0 && !loading && (
+                <div className="text-center py-12 bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg">
+                  <div className="text-gray-400 text-6xl mb-4">🍽️</div>
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                    {searchQuery || showPopularOnly
+                      ? "No Menu Items Found"
+                      : "No Menu Items Available"}
+                  </h3>
+                  <p className="text-gray-500">
+                    {searchQuery
+                      ? `No items found for "${searchQuery}". Try a different search term.`
+                      : showPopularOnly ||
+                          selectedSpiceLevels.size > 0 ||
+                          selectedCategories.size > 0 ||
+                          selectedAllergens.size > 0
+                        ? "No items found matching your filters. Try adjusting your filters."
+                        : "Please check back later for our delicious menu items."}
+                  </p>
+                  {(searchQuery ||
+                    showPopularOnly ||
+                    selectedSpiceLevels.size > 0 ||
+                    selectedCategories.size > 0 ||
+                    selectedAllergens.size > 0) && (
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setShowPopularOnly(false);
+                        setSelectedSpiceLevels(new Set());
+                        setSelectedCategories(new Set());
+                        setSelectedAllergens(new Set());
+                      }}
+                      className="mt-4 bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+                    >
+                      Clear Filters
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    {/* Add to Cart Modal */}
-    <AddToCartModal
-      isOpen={isModalOpen}
-      onClose={handleModalClose}
-      menuItem={selectedMenuItem}
-      quantity={modalQuantity}
-      onQuantityChange={setModalQuantity}
-    />
+      {/* Add to Cart Modal */}
+      <AddToCartModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        menuItem={selectedMenuItem}
+        quantity={modalQuantity}
+        onQuantityChange={setModalQuantity}
+      />
     </>
   );
 };
