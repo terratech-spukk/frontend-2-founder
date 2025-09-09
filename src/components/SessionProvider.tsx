@@ -14,6 +14,7 @@ export interface SessionContextType {
   isLoading: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
+  checkTokenExpiration: () => boolean;
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -57,8 +58,29 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
     localStorage.removeItem("user");
   };
 
+  const checkTokenExpiration = () => {
+    if (!token) return false;
+    
+    try {
+      // Decode JWT token to check expiration
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Math.floor(Date.now() / 1000);
+      
+      if (payload.exp && payload.exp < currentTime) {
+        // Token is expired
+        logout();
+        return true; // Token was expired
+      }
+      return false; // Token is still valid
+    } catch (error) {
+      // If token is invalid, logout
+      logout();
+      return true; // Token was invalid/expired
+    }
+  };
+
   return (
-    <SessionContext.Provider value={{ user, token, isLoading, login, logout }}>
+    <SessionContext.Provider value={{ user, token, isLoading, login, logout, checkTokenExpiration }}>
       {children}
     </SessionContext.Provider>
   );

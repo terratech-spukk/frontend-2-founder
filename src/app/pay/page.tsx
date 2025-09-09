@@ -18,7 +18,7 @@ const formatTHB = (n: number) =>
 export default function Page() {
   const router = useRouter();
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
-  const { user, token } = useSession();
+  const { user, token, checkTokenExpiration, logout } = useSession();
   const [method, setMethod] = useState<'card' | 'promptpay' | 'linepay'>('card');
   const [cardNumber, setCardNumber] = useState('');
   const [exp, setExp] = useState('');
@@ -72,6 +72,17 @@ export default function Page() {
       router.push('/login');
       return;
     }
+
+    // Check if token is expired
+    if (checkTokenExpiration()) {
+      addToast({
+        title: "เซสชันหมดอายุ",
+        description: "Your session has expired. Please login again.",
+        color: "warning",
+      });
+      router.push('/login');
+      return;
+    }
     
     if (method === 'card' && (!cardNumber || !exp || !cvv)) {
       addToast({
@@ -92,8 +103,23 @@ export default function Page() {
           room: 495,
         }),
       });
-      if (!res.ok) throw new Error(String(res.status));
       const data = await res.json();
+      
+      // Check for account expiration error
+      if (data?.error === "Account expired") {
+        addToast({
+          title: "บัญชีหมดอายุ",
+          description: "Your account has expired. Please contact support or login again.",
+          color: "warning",
+        });
+        // Logout user and redirect to login
+        logout();
+        router.push('/login');
+        return;
+      }
+      
+      if (!res.ok) throw new Error(String(res.status));
+      
       if (data?.ok) {
         addToast({
           title: "สั่งอาหารสำเร็จ! 🎉",
@@ -112,6 +138,19 @@ export default function Page() {
       }
     } catch (err) {
       console.error(err);
+      
+      // Check if the error is related to account expiration
+      if (err instanceof Error && err.message.includes('401')) {
+        addToast({
+          title: "บัญชีหมดอายุ",
+          description: "Your account has expired. Please login again.",
+          color: "warning",
+        });
+        logout();
+        router.push('/login');
+        return;
+      }
+      
       addToast({
         title: "สั่งอาหารไม่สำเร็จ ลองอีกครั้ง",
         description: "Order creation failed. Please try again later.",
