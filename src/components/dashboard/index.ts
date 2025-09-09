@@ -1,4 +1,8 @@
 export { OrderManagement } from './OrderManagement';
+export { OrderOverview } from './OrderOverview';
+export { IncomeAnalytics } from './IncomeAnalytics';
+export { PopularMenuAnalytics } from './PopularMenuAnalytics';
+export { OrderDataProvider, useOrderData } from './OrderDataProvider';
 export { HotelRoomManagement } from './HotelRoomManagement';
 export { BookingAnalytics } from './BookingAnalytics';
 export { BookingList } from './BookingList';

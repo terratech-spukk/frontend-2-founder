@@ -3,7 +3,7 @@
 import { useSession } from "@/components/SessionProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { OrderManagement } from "@/components/dashboard";
+import { OrderManagement, OrderOverview, IncomeAnalytics, PopularMenuAnalytics, OrderDataProvider } from "@/components/dashboard";
 
 export default function DashboardPage() {
     const { user, isLoading } = useSession();
@@ -60,7 +60,27 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 py-8">
-                <OrderManagement onError={handleError} />
+                <OrderDataProvider onError={handleError}>
+                    {/* Order Overview */}
+                    <div className="mb-8">
+                        <OrderOverview onError={handleError} />
+                    </div>
+
+                    {/* Income Analytics */}
+                    <div className="mb-8">
+                        <IncomeAnalytics onError={handleError} />
+                    </div>
+
+                    {/* Popular Menu Analytics */}
+                    <div className="mb-8">
+                        <PopularMenuAnalytics onError={handleError} />
+                    </div>
+
+                    {/* Order Management */}
+                    <div className="mb-8">
+                        <OrderManagement onError={handleError} />
+                    </div>
+                </OrderDataProvider>
             </div>
         </div>
     );

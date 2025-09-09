@@ -271,7 +271,7 @@ export function OrderManagement({ onError }: OrderManagementProps) {
                                             Room {order.room_id} • {formatDate(order.created_at)}
                                         </p>
                                         <p className="text-sm text-gray-500">
-                                            Created by: {order.created_by}
+                                            Created by: <b>{order.created_by}</b>
                                         </p>
                                     </div>
                                     <div className="text-right">
