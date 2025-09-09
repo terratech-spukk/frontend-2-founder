@@ -92,13 +92,15 @@ export default function FoodEditPage() {
       setIsEditing(false);
       setIsAdding(false);
       setEditingItem(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error saving food menu:', err);
       
-      if (isAdding && err?.response?.status === 404) {
+      const error = err as { response?: { status?: number; data?: { message?: string } }; message?: string };
+      
+      if (isAdding && error?.response?.status === 404) {
         setError('The backend API does not support creating new food items. Please contact the administrator to add new food items through the backend system.');
       } else {
-        setError(`Failed to ${isAdding ? 'create' : 'update'} food menu: ${err?.response?.data?.message || err.message}`);
+        setError(`Failed to ${isAdding ? 'create' : 'update'} food menu: ${error?.response?.data?.message || error?.message || 'Unknown error'}`);
       }
       
       // Reset the adding state on error
