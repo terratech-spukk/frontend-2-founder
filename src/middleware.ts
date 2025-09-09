@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { JWT_SECRET, API_BASE } from "./app/api/base";
+import { JWT_SECRET } from "./app/api/base";
 
 export async function middleware(req: NextRequest) {
   if (!req.nextUrl.pathname.startsWith("/api/protected")) return NextResponse.next();
@@ -16,16 +16,26 @@ export async function middleware(req: NextRequest) {
     // 1️⃣ Verify JWT
     const { payload } = await jwtVerify(token, new TextEncoder().encode(JWT_SECRET));
     const userId = payload.id;
-    console.log("userId", userId);
 
-    // 2️⃣ Fetch account from backend to check expire
-    const res = await fetch(`${API_BASE}/finance-accounts?id=${userId}`, {
+    // 2️⃣ Fetch account from backend via internal proxy to avoid HTTPS/HTTP issues
+    const proxyUrl = `${req.nextUrl.origin}/api/proxy/finance-accounts?id=${userId}`;
+    console.log("Using proxy URL:", proxyUrl);
+    
+    const res = await fetch(proxyUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     });
-    if (!res.ok) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    
+    console.log("Response status:", res.status);
+    console.log("Response ok:", res.ok);
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("API Error:", errorText);
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     const accounts = await res.json();
     const account = accounts[0];

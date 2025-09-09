@@ -10,6 +10,7 @@ async function handleRequest(
 
   // Build target URL (preserve path + query string)
   const targetUrl = `${API_BASE}/${params.path.join("/")}${req.nextUrl.search}`;
+  console.log("Proxy: Forwarding request to:", targetUrl);
 
   // Prepare options
   const options: RequestInit = {
