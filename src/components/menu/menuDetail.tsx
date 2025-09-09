@@ -6,15 +6,21 @@ import { api } from '@/lib/axios';
 import Image from 'next/image';
 import { MenuItem, ApiResponse } from '@/types/menu';
 import { categories } from '@/data/food_categories';
+import { useCart } from '@/contexts/CartContext';
+import { AddToCartModal } from './AddToCartModal';
 
 
 const FoodDetailPage = ({ menuId }: { menuId: string }) => {
   const router = useRouter();
+  const { getItemQuantity } = useCart();
   const [menu, setMenu] = useState<MenuItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [failedImage, setFailedImage] = useState<boolean>(false);
   const [quantity, setQuantity] = useState<number>(1);
+  
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchMenuDetail = async (): Promise<void> => {
@@ -63,9 +69,12 @@ const FoodDetailPage = ({ menuId }: { menuId: string }) => {
   };
 
   const handleAddToCart = () => {
-    // Handle add to cart logic here
-    console.log('Add to cart:', menu?.id, 'Quantity:', quantity);
-    // You can implement cart functionality here
+    if (!menu) return;
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
   };
 
   if (loading) {
@@ -239,12 +248,24 @@ const FoodDetailPage = ({ menuId }: { menuId: string }) => {
                 onClick={handleAddToCart}
                 className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg hover:bg-orange-600 transition-colors duration-200 font-medium text-lg"
               >
-                Add to Cart - ฿{menu.price * quantity}
+                {getItemQuantity(menu.id) > 0 
+                  ? `Add to Cart (${getItemQuantity(menu.id)}) - ฿${menu.price * quantity}` 
+                  : `Add to Cart - ฿${menu.price * quantity}`
+                }
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Add to Cart Modal */}
+      <AddToCartModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        menuItem={menu}
+        quantity={quantity}
+        onQuantityChange={setQuantity}
+      />
     </div>
   );
 };

@@ -6,10 +6,13 @@ import { useRouter } from 'next/navigation';
 import { MenuItem, ApiResponse } from '@/types/menu';
 import { categories } from '@/data/food_categories';
 import { api } from '@/lib/axios';
+import { useCart } from '@/contexts/CartContext';
+import { AddToCartModal } from './AddToCartModal';
 
 
 const FoodMenuPage = () => {
   const router = useRouter();
+  const { getItemQuantity } = useCart();
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +23,11 @@ const FoodMenuPage = () => {
   const [showPopularOnly, setShowPopularOnly] = useState<boolean>(false);
   const [selectedSpiceLevels, setSelectedSpiceLevels] = useState<Set<number>>(new Set());
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
+  
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
+  const [modalQuantity, setModalQuantity] = useState(1);
 
   useEffect(() => {
     const fetchMenus = async (): Promise<void> => {
@@ -116,6 +124,21 @@ const FoodMenuPage = () => {
   // Handle card click to navigate to detail page
   const handleCardClick = (menuId: string) => {
     router.push(`/menu/${menuId}`);
+  };
+
+  // Handle add to cart button click
+  const handleAddToCartClick = (e: React.MouseEvent, menu: MenuItem) => {
+    e.stopPropagation();
+    setSelectedMenuItem(menu);
+    setModalQuantity(1);
+    setIsModalOpen(true);
+  };
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedMenuItem(null);
+    setModalQuantity(1);
   };
 
   if (loading) {
@@ -416,13 +439,12 @@ const FoodMenuPage = () => {
                 <div className="mt-auto pt-4">
                   <button 
                     className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors duration-200 font-medium"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Handle add to cart logic here
-                      console.log('Add to cart:', menu.id);
-                    }}
+                    onClick={(e) => handleAddToCartClick(e, menu)}
                   >
-                    Add to Cart
+                    {getItemQuantity(menu.id) > 0 
+                      ? `Add to Cart (${getItemQuantity(menu.id)})` 
+                      : 'Add to Cart'
+                    }
                   </button>
                 </div>
               </div>
@@ -463,6 +485,15 @@ const FoodMenuPage = () => {
         </div>
       </div>
     </div>
+
+    {/* Add to Cart Modal */}
+    <AddToCartModal
+      isOpen={isModalOpen}
+      onClose={handleModalClose}
+      menuItem={selectedMenuItem}
+      quantity={modalQuantity}
+      onQuantityChange={setModalQuantity}
+    />
     </>
   );
 };

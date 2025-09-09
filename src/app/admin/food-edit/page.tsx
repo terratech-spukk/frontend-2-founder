@@ -5,12 +5,16 @@ import { api } from '@/lib/axios';
 import { MenuItem } from '@/types/menu';
 import { categories } from '@/data/food_categories';
 import Image from 'next/image';
+import { useSession } from '@/components/SessionProvider';
+import { useRouter } from 'next/navigation';
 
 interface FoodMenu extends MenuItem {
   category_name?: string;
 }
 
 export default function FoodEditPage() {
+  const { user, isLoading } = useSession();
+  const router = useRouter();
   const [foodMenus, setFoodMenus] = useState<FoodMenu[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +24,22 @@ export default function FoodEditPage() {
   useEffect(() => {
     fetchFoodMenus();
   }, []);
+
+  useEffect(() => {
+    if (!isLoading) {
+        // If user is not logged in, redirect to login
+        if (!user) {
+            router.push("/login");
+            return;
+        }
+        
+        // If user is not admin, redirect to menu
+        if (user.role !== "admin") {
+            router.push("/menu");
+            return;
+        }
+    }
+}, [user, isLoading, router]);
 
   const fetchFoodMenus = async () => {
     try {
@@ -151,9 +171,6 @@ function FoodMenuList({ items, onEdit }: FoodMenuListProps) {
                 Price
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Spice Level
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Popular
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -186,20 +203,6 @@ function FoodMenuList({ items, onEdit }: FoodMenuListProps) {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   ฿{item.price.toFixed(2)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <span
-                        key={i}
-                        className={`text-lg ${
-                          i < item.spice_level ? 'text-red-500' : 'text-gray-300'
-                        }`}
-                      >
-                        🌶️
-                      </span>
-                    ))}
-                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
