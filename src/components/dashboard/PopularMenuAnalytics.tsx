@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useOrderData } from './OrderDataProvider';
-import { Order } from '@/types/order';
+import { Order, OrderItem } from '@/types/order';
 
 interface PopularMenuAnalyticsProps {
     onError?: (error: string) => void;
@@ -48,7 +48,7 @@ export function PopularMenuAnalytics({ onError }: PopularMenuAnalyticsProps) {
         const menuItemMap = new Map<string, MenuItemStats>();
 
         filteredOrders.forEach(order => {
-            order.items.forEach((item: any) => {
+            order.items.forEach((item: OrderItem) => {
                 const existing = menuItemMap.get(item.menu_id);
                 if (existing) {
                     existing.totalQuantity += item.quantity;
