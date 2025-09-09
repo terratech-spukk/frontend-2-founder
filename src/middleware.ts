@@ -16,6 +16,7 @@ export async function middleware(req: NextRequest) {
     // 1️⃣ Verify JWT
     const { payload } = await jwtVerify(token, new TextEncoder().encode(JWT_SECRET));
     const userId = payload.id;
+    console.log("userId", userId);
 
     // 2️⃣ Fetch account from backend to check expire
     const res = await fetch(`${API_BASE}/finance-accounts?id=${userId}`);
