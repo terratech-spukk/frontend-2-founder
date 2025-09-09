@@ -207,11 +207,11 @@ export function BookingAnalytics({ onError }: BookingAnalyticsProps) {
 
     // Calculate filtered totals
     const filteredTotalIncome = filteredBookings
-        .filter(booking => booking.status === "checked_out")
+        .filter(booking => booking.status === "checked_out" || booking.status === "checked_in")
         .reduce((total, booking) => total + booking.price, 0);
 
     const filteredExpectedIncome = filteredBookings
-        .filter(booking => booking.status === "reserved" || booking.status === "checked_in")
+        .filter(booking => booking.status === "reserved")
         .reduce((total, booking) => total + booking.price, 0);
 
     if (bookingsLoading) {
