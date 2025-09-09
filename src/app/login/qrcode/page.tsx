@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/components/SessionProvider";
 
@@ -16,14 +16,7 @@ function AutoLoginContent() {
   const loginname = searchParams.get("loginname");
   const password = searchParams.get("password");
 
-  // Auto-login if parameters are present
-  useEffect(() => {
-    if (loginname && password) {
-      handleAutoLogin(loginname, password);
-    }
-  }, [loginname, password]);
-
-  const handleAutoLogin = async (username: string, password: string) => {
+  const handleAutoLogin = useCallback(async (username: string, password: string) => {
     setIsAutoLoggingIn(true);
     setError("");
 
@@ -49,10 +42,18 @@ function AutoLoginContent() {
         setIsAutoLoggingIn(false);
       }
     } catch (err) {
+      console.error(err);
       setError("Network error. Please try again.");
       setIsAutoLoggingIn(false);
     }
-  };
+  }, [login, router]);
+
+  // Auto-login if parameters are present
+  useEffect(() => {
+    if (loginname && password) {
+      handleAutoLogin(loginname, password);
+    }
+  }, [loginname, password, handleAutoLogin]);
 
   const handleManualLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -84,6 +85,7 @@ function AutoLoginContent() {
         setError(data.error || "Login failed");
       }
     } catch (err) {
+      console.error(err);
       setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);

@@ -191,7 +191,7 @@ export default function AdminOrdersPage() {
               ].map((tab) => (
                 <button
                   key={tab.key}
-                  onClick={() => setFilter(tab.key as any)}
+                  onClick={() => setFilter(tab.key as 'all' | 'pending' | 'cooking' | 'serve')}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                     filter === tab.key
                       ? 'bg-white text-blue-600 shadow-sm'

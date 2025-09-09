@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import Image from "next/image";
 
 interface QRCodeData {
   username: string;
@@ -76,10 +77,12 @@ export function QRCodeModal({
             <h3 className="text-lg font-semibold text-gray-800">QR Code Login</h3>
             <div className="bg-white p-4 rounded-lg border-2 border-gray-200 inline-block">
               {credentials.qrCodeData?.qrCodeImage ? (
-                <img 
-                  src={credentials.qrCodeData.qrCodeImage} 
+                <Image 
+                  src={credentials.qrCodeData.qrCodeImage || ''} 
                   alt="QR Code" 
                   className="w-48 h-48 object-contain"
+                  width={200}
+                  height={200}
                 />
               ) : (
                 <QRCodeSVG

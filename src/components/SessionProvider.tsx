@@ -34,6 +34,7 @@ export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children })
         setToken(storedToken);
         setUser(userData);
       } catch (error) {
+        console.error(error);
         // Clear invalid data
         localStorage.removeItem("token");
         localStorage.removeItem("user");

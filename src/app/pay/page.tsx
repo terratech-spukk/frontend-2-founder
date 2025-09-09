@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image  from 'next/image';
 import { useCart } from '@/contexts/CartContext';
@@ -18,7 +18,7 @@ const formatTHB = (n: number) =>
 export default function Page() {
   const router = useRouter();
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
-  const { user, isLoading, token } = useSession();
+  const { user, token } = useSession();
   const [method, setMethod] = useState<'card' | 'promptpay' | 'linepay'>('card');
   const [cardNumber, setCardNumber] = useState('');
   const [exp, setExp] = useState('');

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Room } from "@/types/room";
 import { ReservationModal } from "./ReservationModal";
 import { QRCodeSVG } from "qrcode.react";
+import Image from "next/image";
 
 interface RoomCardProps {
   room: Room;
@@ -225,10 +226,12 @@ export function RoomCard({ room, onReserve, onCancel, onShowQR, onCheckin, onChe
 
             {room.qrcode_base64 ? (
               <div className="text-center">
-                <img 
-                  src={room.qrcode_base64} 
+                <Image 
+                  src={room.qrcode_base64 || ''} 
                   alt="QR Code" 
                   className="w-48 h-48 mx-auto mb-4 object-contain"
+                  width={200}
+                  height={200}
                 />
                 <p className="text-sm text-gray-600 mb-4">
                   Scan this QR code to auto-login

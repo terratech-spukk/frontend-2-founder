@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { API_BASE } from '../../base';
 import { Order, OrderItem } from '@/types/order';
+import { CartItem } from '@/types/cart';
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     const orderId = `order_${dateStr}_${timeStr}`;
 
     // Transform cart items to order items
-    const orderItems: OrderItem[] = items.map((item: any) => ({
+    const orderItems: OrderItem[] = items.map((item: CartItem) => ({
       menu_id: item.id,
       name: item.name,
       quantity: item.quantity,

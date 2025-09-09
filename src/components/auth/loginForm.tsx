@@ -46,6 +46,7 @@ export  function LoginForm() {
           setError(data.error || "Login failed");
         }
       } catch (err) {
+        console.error(err);
         setError("Network error. Please try again.");
       } finally {
         setIsLoading(false);
