@@ -100,7 +100,7 @@ export default function Page() {
         body: JSON.stringify({
           items: cart.items,
           totals: { subTotal, vat7, grandTotal },
-          room: 495,
+          room: user.room_id,
         }),
       });
       const data = await res.json();
@@ -334,7 +334,7 @@ export default function Page() {
               </div>
             )}
 
-            <div className="mt-4 text-center text-white/80 text-sm">Room 495</div>
+            {user && <div className="mt-4 text-center text-white/80 text-sm">Room {user.room_id}</div>}
 
             <div className="mt-4 grid gap-3">
               <button
